@@ -2,13 +2,17 @@ import { serve } from "https://deno.land/std@0.155.0/http/server.ts";
 import { config } from "https://deno.land/x/dotenv/mod.ts";
 
 // Load config from .env files
-const env = config({safe: true});
-
+// wrap in try cause files don't work on server
+try {
+    config({safe: true, export: true});
+} catch {
+    console.log('No .env support')
+}
 
 const options = {
   method: "POST",
   headers: {
-    Authorization: "Bearer " + env.XATA_API_KEY,
+    Authorization: "Bearer " + Deno.env.get('XATA_API_KEY'),
     "Content-Type": "application/json",
   },
   body: '{"columns":["*","dose.*"],"page":{"size":15}}',
