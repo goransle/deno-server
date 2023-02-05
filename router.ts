@@ -1,17 +1,18 @@
 type CallbackHandler = (
   request: Request,
-  params: Record<string, string>,
+  params?: Record<string, string>,
 ) => Promise<Response>;
 
 export interface Route {
     pattern: URLPattern;
-    handler: CallbackHandler;
+    handler:  CallbackHandler;
 }
 
 export const routes: Record<string, Route[]> = {
   GET: [],
   POST: [],
   PUT: [],
+  PATCH: [],
 };
 
 
