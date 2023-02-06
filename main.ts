@@ -46,7 +46,7 @@ addRoute("GET", "/addEmoji/:emoji", async (req, params) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        emoji: emoji
+        emoji: emoji,
       }),
     };
 
@@ -65,11 +65,18 @@ addRoute("GET", "/addEmoji/:emoji", async (req, params) => {
   return new Response("lol");
 });
 
-
 addRoute("GET", "/click/:emoji", async (req, params) => {
-  console.log(params);
-
   if (params?.emoji) {
+    // TODO: this url :/
+    const emojis = await fetch("http://" + req.headers.get("host") + "/emojis")
+      .then((response) => response.json());
+
+    console.log(emojis);
+
+    const { id, clicks } = emojis.find((emojiObj) =>
+      emojiObj.emoji === decodeURI(params.emoji)
+    );
+
     const options = {
       method: "POST",
       headers: {
@@ -77,12 +84,12 @@ addRoute("GET", "/click/:emoji", async (req, params) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        clicks: 100
+        clicks: clicks + 1
       }),
     };
-
+    
     const response = await fetch(
-      `https://goransle-s-workspace-0544ur.eu-west-1.xata.sh/db/db-lol:main/tables/emojiClicks/data/${params.emoji}?columns=emoji`,
+      `https://goransle-s-workspace-0544ur.eu-west-1.xata.sh/db/db-lol:main/tables/emojiClicks/data/${id}?columns=emoji`,
       options,
     )
       .then((response) => response.json())
@@ -98,24 +105,24 @@ addRoute("GET", "/click/:emoji", async (req, params) => {
 
 // TODO add some caching of keys
 addRoute("GET", "/emojis", async (req, params) => {
-    const options = {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${Deno.env.get("XATA_API_KEY")}`,
-        "Content-Type": "application/json",
-        body: '{"page":{"size":99}}'
-      }
-    };
+  const options = {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${Deno.env.get("XATA_API_KEY")}`,
+      "Content-Type": "application/json",
+      body: '{"page":{"size":99}}',
+    },
+  };
 
-    const response = await fetch(
-      `https://goransle-s-workspace-0544ur.eu-west-1.xata.sh/db/db-lol:main/tables/emojiClicks/query`,
-      options,
-    )
-      .then((response) => response.json())
-      .then((response) => JSON.stringify(response))
-      .catch((err) => console.error(err));
-    if (response) {
-      return new Response(response);
+  const response = await fetch(
+    `https://goransle-s-workspace-0544ur.eu-west-1.xata.sh/db/db-lol:main/tables/emojiClicks/query`,
+    options,
+  )
+    .then((response) => response.json())
+    .then((response) => JSON.stringify(response.records))
+    .catch((err) => console.error(err));
+  if (response) {
+    return new Response(response);
   }
 
   return new Response("lol");
