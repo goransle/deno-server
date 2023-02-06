@@ -145,7 +145,7 @@ serve(async (req: Request) => {
   if (origin && allowedOrigins.includes(origin)) {
     response.headers.set(
       "Access-Control-Allow-Origin",
-      "*",
+      origin,
     );
     response.headers.set(
       "Vary",
