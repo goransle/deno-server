@@ -139,6 +139,7 @@ serve(async (req: Request) => {
   const allowedOrigins = [
     "localhost:8000",
     "goransle.omg.lol",
+    "goransle-deno-server.deno.dev"
   ];
 
   const origin = req.headers.get("host");
