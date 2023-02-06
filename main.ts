@@ -133,4 +133,34 @@ addRoute("GET", "/emojis", async (req, params) => {
   return new Response("lol");
 });
 
-serve((req: Request) => getRoute(req));
+serve(async (req: Request) => {
+  const response = await getRoute(req);
+
+  const allowedOrigins = [
+    "localhost:8000",
+    "goransle.omg.lol",
+  ];
+
+  const origin = req.headers.get("host");
+  if (origin && allowedOrigins.includes(origin)) {
+    response.headers.set(
+      "Access-Control-Allow-Origin",
+      "*",
+    );
+    response.headers.set(
+      "Vary",
+      "Origin",
+    );
+    response.headers.set(
+      "Keep-Alive",
+      "timeout=2, max=100",
+    );
+    response.headers.set(
+      "Connection",
+      "Keep-Alive",
+    );
+
+    return response;
+  }
+  else return new Response();
+});
