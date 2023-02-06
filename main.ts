@@ -143,6 +143,8 @@ serve(async (req: Request) => {
   ];
 
   const origin = req.headers.get("host");
+
+  console.log(origin)
   if (origin && allowedOrigins.includes(origin)) {
     response.headers.set(
       "Access-Control-Allow-Origin",
