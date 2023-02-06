@@ -33,6 +33,27 @@ addRoute("GET", "/", async (req, params) => {
   }
 });
 
+async function getEmojiRecords() {
+  const options = {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${Deno.env.get("XATA_API_KEY")}`,
+      "Content-Type": "application/json",
+      body: '{"page":{"size":99}}',
+    },
+  };
+
+  const response = await fetch(
+    `https://goransle-s-workspace-0544ur.eu-west-1.xata.sh/db/db-lol:main/tables/emojiClicks/query`,
+    options,
+  )
+    .then((response) => response.json())
+    .then((response) => response.records)
+    .catch((err) => console.error(err));
+
+  return response;
+}
+
 // TODO: should be a POST
 addRoute("GET", "/addEmoji/:emoji", async (req, params) => {
   console.log(params);
@@ -68,35 +89,34 @@ addRoute("GET", "/addEmoji/:emoji", async (req, params) => {
 addRoute("GET", "/click/:emoji", async (req, params) => {
   if (params?.emoji) {
     // TODO: this url :/
-    const emojis = await fetch("http://" + req.headers.get("host") + "/emojis")
-      .then((response) => response.json());
+    const emojis = await getEmojiRecords();
 
-    console.log(emojis);
+    if (emojis) {
+      const { id, clicks } = emojis.find((emojiObj) =>
+        emojiObj.emoji === decodeURI(params.emoji)
+      );
 
-    const { id, clicks } = emojis.find((emojiObj) =>
-      emojiObj.emoji === decodeURI(params.emoji)
-    );
+      const options = {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${Deno.env.get("XATA_API_KEY")}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          clicks: clicks + 1,
+        }),
+      };
 
-    const options = {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${Deno.env.get("XATA_API_KEY")}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        clicks: clicks + 1
-      }),
-    };
-    
-    const response = await fetch(
-      `https://goransle-s-workspace-0544ur.eu-west-1.xata.sh/db/db-lol:main/tables/emojiClicks/data/${id}?columns=emoji`,
-      options,
-    )
-      .then((response) => response.json())
-      .then((response) => JSON.stringify(response))
-      .catch((err) => console.error(err));
-    if (response) {
-      return new Response(response);
+      const response = await fetch(
+        `https://goransle-s-workspace-0544ur.eu-west-1.xata.sh/db/db-lol:main/tables/emojiClicks/data/${id}?columns=emoji`,
+        options,
+      )
+        .then((response) => response.json())
+        .then((response) => JSON.stringify(response))
+        .catch((err) => console.error(err));
+      if (response) {
+        return new Response(response);
+      }
     }
   }
 
@@ -105,24 +125,9 @@ addRoute("GET", "/click/:emoji", async (req, params) => {
 
 // TODO add some caching of keys
 addRoute("GET", "/emojis", async (req, params) => {
-  const options = {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${Deno.env.get("XATA_API_KEY")}`,
-      "Content-Type": "application/json",
-      body: '{"page":{"size":99}}',
-    },
-  };
-
-  const response = await fetch(
-    `https://goransle-s-workspace-0544ur.eu-west-1.xata.sh/db/db-lol:main/tables/emojiClicks/query`,
-    options,
-  )
-    .then((response) => response.json())
-    .then((response) => JSON.stringify(response.records))
-    .catch((err) => console.error(err));
+  const response = await getEmojiRecords();
   if (response) {
-    return new Response(response);
+    return new Response(JSON.stringify(response));
   }
 
   return new Response("lol");
