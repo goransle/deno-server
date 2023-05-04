@@ -176,6 +176,7 @@ main {
     margin: 0 auto;
     max-width: 30em;
     display: flex;
+    flex-wrap: wrap;
     gap: 1em;
 }
 
