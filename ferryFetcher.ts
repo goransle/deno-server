@@ -17,7 +17,7 @@ const today = new Date();
 const ferryRequestJSON = {
     "from": places['vangsnes'],
     "to": places['hella'],
-    "searchDate": today, //(new Date()).setDate(today.getDate() + 1),
+    "searchDate": today.toISOString(), //(new Date()).setDate(today.getDate() + 1),
     "tripMode": "oneway",
     "arriveBy": false,
     "searchPreset": "RECOMMENDED",

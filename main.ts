@@ -142,7 +142,9 @@ addRoute('GET', '/ferries', async (req) =>{
                     <ul>
                     ${
                         ferries.map((ferry)=>{
-                        return `<li>${(new Date(ferry)).toTimeString()}</li>` ;
+                        return `<li>${(new Date(ferry)).toLocaleString(
+                            'no-NO', { timeZone: 'Europe/Oslo' }
+                        )}</li>` ;
                     }).join('')}
                     </ul>
                     `);
