@@ -146,7 +146,12 @@ addRoute('GET', '/ferries', async (req) =>{
                     }).join('')}
                     </ul>
                     `);
-        return new Response(body)
+
+        return new Response(body, {
+            headers: {
+                'Content-Type' : 'text/html'
+            }
+        })
     }
 
   return new Response("lol");
