@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.155.0/http/server.ts";
 import { config } from "https://deno.land/x/dotenv/mod.ts";
 
 import { addRoute, getRoute } from "./router.ts";
+import {getNextFerries} from './ferryFetcher.ts';
 
 // Load config from .env files
 // wrap in try cause files don't work on server
@@ -132,6 +133,24 @@ addRoute("GET", "/emojis", async (req, params) => {
 
   return new Response("lol");
 });
+
+addRoute('GET', '/ferries', async (req) =>{
+    const ferries = await getNextFerries();
+    if(ferries){
+        const body = new TextEncoder()
+            .encode(`<h1>Next ferries from Vangsnes to Hella</h1>
+                    <ul>
+                    ${
+                        ferries.map((ferry)=>{
+                        return `<li>${(new Date(ferry)).toLocaleString()}</li>` ;
+                    }).join('')}
+                    </ul>
+                    `);
+        return new Response(body)
+    }
+
+  return new Response("lol");
+})
 
 serve(async (req: Request) => {
   const response = await getRoute(req);
