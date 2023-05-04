@@ -12,6 +12,34 @@ try {
     console.log("No .env support");
 }
 
+const boilerplate = ({ title, body, style }) => `
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="UTF-8" />
+
+  <title>${title}</title>
+
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+
+  <meta name="description" content="" />
+
+  <link rel="icon" href="favicon.png">
+  <style>
+  ${style}
+  </style>
+</head>
+
+<body>
+${body}
+</body>
+
+</html>
+
+`
+
 addRoute("GET", "/", () => {
     const response = 'Hello world';
 
@@ -131,8 +159,30 @@ addRoute('GET', '/ferries', async (_req) => {
 
 
     if (ferriesFromVangsnes) {
-        const body = new TextEncoder()
-            .encode(`<h2>Next ferries from Vangsnes to Hella</h2>
+
+        const body = boilerplate({
+            style: `
+@media (prefers-color-scheme: dark) {
+    body {
+        background-color: black;
+        color: white;
+    }
+}
+body {
+    font-family: sans-serif;
+    font-size: 2em;
+}
+main {
+    margin: 0 auto;
+    max-width: 30em;
+    display: flex;
+    gap: 1em;
+}
+
+            `,
+            body: `<main>
+                <section>
+                <h2>Vangsnes to Hella</h2>
                     <ul>
                     ${ferriesFromVangsnes.map((ferry) => {
                 return `<li>${(new Date(ferry)).toLocaleString(
@@ -140,8 +190,10 @@ addRoute('GET', '/ferries', async (_req) => {
                 )}</li>`;
             }).join('')}
                     </ul>
+                    </section>
 
-<h2>Next ferries from Hella to Vangsnes</h2>
+                    <section>
+                <h2>Hella to Vangsnes</h2>
                     <ul>
                     ${ferriesFromHella.map((ferry) => {
                 return `<li>${(new Date(ferry)).toLocaleString(
@@ -149,10 +201,15 @@ addRoute('GET', '/ferries', async (_req) => {
                 )}</li>`;
             }).join('')}
                     </ul>
+                    </section>
+                    </main>`,
+            title: 'Ferjetider, hei, hei, ferjetider'
 
-                    `);
+        })
+        const responseBody = new TextEncoder()
+            .encode(body);
 
-        return new Response(body, {
+        return new Response(responseBody, {
             headers: {
                 'Content-Type': 'text/html'
             }
