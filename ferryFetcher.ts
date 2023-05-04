@@ -14,32 +14,58 @@ const places = {
 const today = new Date();
 
 
-const ferryRequestJSON = {
-    "from": places['vangsnes'],
-    "to": places['hella'],
-    "searchDate": today.toISOString(), //(new Date()).setDate(today.getDate() + 1),
-    "tripMode": "oneway",
-    "arriveBy": false,
-    "searchPreset": "RECOMMENDED",
-    "walkSpeed": 1.4,
-    "minimumTransferTime": 120,
-    "searchFilter": [
-        "car_ferry"
-    ],
-    "debugItineraryFilter": false
+const ferryRequestJSON = (from, to) => {
+    return {
+        "from": places[from],
+        "to": places[to],
+        "searchDate": today.toISOString(), //(new Date()).setDate(today.getDate() + 1),
+        "tripMode": "oneway",
+        "arriveBy": false,
+        "searchPreset": "RECOMMENDED",
+        "walkSpeed": 1.4,
+        "minimumTransferTime": 120,
+        "searchFilter": [
+            "car_ferry"
+        ],
+        "debugItineraryFilter": false
+    }
 };
 
-export async function getNextFerries() {
+export type getNextFerriesObject = {
+    from: string;
+    to: string;
+}
+
+export async function getNextFerries(config: getNextFerriesObject) {
     const data = await fetch('https://api.entur.io/client/search/v1/transit', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify(ferryRequestJSON)
+        body: JSON.stringify(ferryRequestJSON(config.from, config.to))
 
     }).then(res => res.ok ? res.json() : null);
     if (data) {
-        return data.tripPatterns.map(tp => tp.startTime)
+        let trips = data.tripPatterns;
+        const cursor = data.nextCursor;
+
+        if (cursor) {
+            const moreData = await fetch('https://api.entur.io/client/search/v1/transit', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ cursor })
+
+            }).then(res => res.ok ? res.json() : null);
+
+            if(moreData){
+                trips = [...trips, ...moreData.tripPatterns];
+                console.log({moreData})
+            }
+        }
+
+        return trips.map(tp => tp.startTime)
     }
 }
 
