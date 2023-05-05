@@ -147,11 +147,6 @@ addRoute("GET", "/emojis", async (_req, _params) => {
 });
 
 
-const tmpFilePath = await Deno.makeTempFile({
-    prefix: 'ferries_',
-    suffix: '.json'
-});
-
 const cachedResponse: Record<string, string> = {};
 
 addRoute('GET', '/ferries', async (_req) => {
