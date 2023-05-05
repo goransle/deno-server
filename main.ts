@@ -146,21 +146,47 @@ addRoute("GET", "/emojis", async (_req, _params) => {
     return new Response("lol");
 });
 
+
+const tmpFilePath = await Deno.makeTempFile({
+    prefix: 'ferries_',
+    suffix: '.json'
+});
+
+console.log(tmpFilePath)
+
 addRoute('GET', '/ferries', async (_req) => {
-    const ferriesFromVangsnes = await getNextFerries({
-        from: 'vangsnes',
-        to: 'hella'
-    });
+    const cachedResponse = await Deno.readTextFile(tmpFilePath);
 
-    const ferriesFromHella = await getNextFerries({
-        from: 'hella',
-        to: 'vangsnes'
-    });
+    const response: Record<string, string> = {}
+
+    if (cachedResponse) {
+        const cachedJSON = JSON.parse(cachedResponse);
+
+        if (cachedJSON.body && cachedJSON.timestamp) {
+            // TODO: add env variable for this
+            const isStale = new Date() - new Date(cachedJSON.timestamp) > (2 * 60 * 1000);
+
+            if (!isStale) {
+                console.log('using cached response from ' + cachedJSON.timestamp)
+                response.body = cachedJSON.body;
+            }
+        }
+    }
+
+    if (!response.body) {
+        const ferriesFromVangsnes = await getNextFerries({
+            from: 'vangsnes',
+            to: 'hella'
+        });
+
+        const ferriesFromHella = await getNextFerries({
+            from: 'hella',
+            to: 'vangsnes'
+        });
 
 
-    if (ferriesFromVangsnes) {
 
-        const body = boilerplate({
+        response.body = boilerplate({
             style: `
 @media (prefers-color-scheme: dark) {
     body {
@@ -207,17 +233,25 @@ main {
             title: 'Ferjetider, hei, hei, ferjetider'
 
         })
-        const responseBody = new TextEncoder()
-            .encode(body);
 
-        return new Response(responseBody, {
-            headers: {
-                'Content-Type': 'text/html'
-            }
-        })
+
+
+        Deno.writeTextFile(tmpFilePath, JSON.stringify({
+            body: response.body,
+            timestamp: (new Date).toISOString()
+        }));
     }
 
-    return new Response("lol");
+    const responseBody = new TextEncoder()
+        .encode(response.body);
+
+
+
+    return new Response(responseBody, {
+        headers: {
+            'Content-Type': 'text/html'
+        }
+    })
 })
 
 serve(async (req: Request) => {
