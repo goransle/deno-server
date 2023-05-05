@@ -152,23 +152,19 @@ const tmpFilePath = await Deno.makeTempFile({
     suffix: '.json'
 });
 
-console.log(tmpFilePath)
+const cachedResponse: Record<string, string> = {};
 
 addRoute('GET', '/ferries', async (_req) => {
-    const cachedResponse = await Deno.readTextFile(tmpFilePath);
-
     const response: Record<string, string> = {}
 
     if (cachedResponse) {
-        const cachedJSON = JSON.parse(cachedResponse);
-
-        if (cachedJSON.body && cachedJSON.timestamp) {
+        if (cachedResponse.body && cachedResponse.timestamp) {
             // TODO: add env variable for this
-            const isStale = new Date() - new Date(cachedJSON.timestamp) > (2 * 60 * 1000);
+            const isStale = new Date() - new Date(cachedResponse.timestamp) > (2 * 60 * 1000);
 
             if (!isStale) {
-                console.log('using cached response from ' + cachedJSON.timestamp)
-                response.body = cachedJSON.body;
+                console.log('using cached response from ' + cachedResponse.timestamp)
+                response.body = cachedResponse.body;
             }
         }
     }
@@ -236,10 +232,8 @@ main {
 
 
 
-        Deno.writeTextFile(tmpFilePath, JSON.stringify({
-            body: response.body,
-            timestamp: (new Date).toISOString()
-        }));
+        cachedResponse.body = response.body;
+        cachedResponse.timestamp = (new Date).toISOString();
     }
 
     const responseBody = new TextEncoder()
