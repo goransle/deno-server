@@ -38,7 +38,7 @@ addRoute("GET", "/", () => {
 serve(async (req: Request) => {
   const response = await getRoute(req);
 
-              const allowedOrigins = [
+  const allowedOrigins = [
     "localhost:8000",
     "goransle.omg.lol",
     "goransle-deno-server.deno.dev",
