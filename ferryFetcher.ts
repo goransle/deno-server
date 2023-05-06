@@ -1,4 +1,25 @@
-const places = {
+export type Place = {
+  "place": string;
+  "name": string;
+  "coordinates": {
+    "latitude": number;
+    "longitude": number;
+  };
+};
+
+export type getNextFerriesObject = {
+  from: string;
+  to: string;
+};
+
+export type TransitResponse = {
+  tripPatterns: {
+    startTime: string;
+  }[];
+  nextCursor: string;
+};
+
+export const places: Record<string, Place> = {
   "vangsnes": {
     "place": "NSR:StopPlace:58339",
     "name": "Vangsnes ferjekai",
@@ -15,11 +36,19 @@ const places = {
       "longitude": 6.597993,
     },
   },
+  "dragsvik": {
+    "coordinates": {
+      "latitude": 61.215077,
+      "longitude": 6.5649,
+    },
+    "name": "Dragsvik ferjekai",
+    "place": "NSR:StopPlace:58344",
+  },
 };
 
 const today = new Date();
 
-const ferryRequestJSON = (from, to) => {
+const ferryRequestJSON = (from: string, to: string) => {
   return {
     "from": places[from],
     "to": places[to],
@@ -36,38 +65,30 @@ const ferryRequestJSON = (from, to) => {
   };
 };
 
-export type getNextFerriesObject = {
-  from: string;
-  to: string;
-};
-
-export async function getNextFerries(config: getNextFerriesObject) {
+async function fetchTransit(
+  payload: Record<string, unknown>,
+): Promise<TransitResponse | null> {
   const data = await fetch("https://api.entur.io/client/search/v1/transit", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(ferryRequestJSON(config.from, config.to)),
+    body: JSON.stringify(payload),
   }).then((res) => res.ok ? res.json() : null);
+
+  return data;
+}
+
+export async function getNextFerries(config: getNextFerriesObject) {
+  const data = await fetchTransit(ferryRequestJSON(config.from, config.to));
   if (data) {
     let trips = data.tripPatterns;
     const cursor = data.nextCursor;
 
     if (cursor) {
-      const moreData = await fetch(
-        "https://api.entur.io/client/search/v1/transit",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ cursor }),
-        },
-      ).then((res) => res.ok ? res.json() : null);
-
+      const moreData = await fetchTransit({ cursor });
       if (moreData) {
         trips = [...trips, ...moreData.tripPatterns];
-        console.log({ moreData });
       }
     }
 

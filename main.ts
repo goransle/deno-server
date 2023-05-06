@@ -1,6 +1,9 @@
 import { serve } from "https://deno.land/std@0.155.0/http/server.ts";
 import { config } from "https://deno.land/x/dotenv/mod.ts";
-import renderToString from "https://cdn.skypack.dev/preact-render-to-string@v6.0.3";
+import {
+  render,
+  renderToString,
+} from "https://esm.sh/preact-render-to-string@v6.0.3";
 
 import { addRoute, getRoute } from "./router.ts";
 
@@ -16,15 +19,42 @@ try {
 
 import "./ferrystuff.ts";
 import "./emojistuff.ts";
+import { Ferjetider } from "./pages/ferjetider.tsx";
 
 const headers = new Headers();
 headers.append("Content-Type", "text/html; charset=UTF-8");
 
 addRoute("GET", "/", () => {
-  const response = renderToString(
+  const response = render(
     Test({
       text: "hello",
     }),
+  );
+
+  return new Response(
+    response,
+    {
+      headers,
+    },
+  );
+});
+
+addRoute("GET", "/ferjetider", async () => {
+  const response = render(
+    await Ferjetider({}),
+  );
+
+  return new Response(
+    response,
+    {
+      headers,
+    },
+  );
+});
+
+addRoute("GET", "/ferjetider/:from-:to", async (req, params) => {
+  const response = render(
+    await Ferjetider({ from: params?.from, to: params?.to }),
   );
 
   return new Response(

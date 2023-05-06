@@ -1,4 +1,4 @@
-import { h } from "https://cdn.skypack.dev/preact";
+import { h } from "https://esm.sh/preact";
 
 export type TestProps = {
   text: string;
