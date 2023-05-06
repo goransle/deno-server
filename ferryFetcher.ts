@@ -44,6 +44,22 @@ export const places: Record<string, Place> = {
     "name": "Dragsvik ferjekai",
     "place": "NSR:StopPlace:58344",
   },
+  "fodnes": {
+    "coordinates": {
+      "latitude": 61.1487,
+      "longitude": 7.383853,
+    },
+    "name": "Fodnes ferjekai",
+    "place": "NSR:StopPlace:58179",
+  },
+  "mannheller": {
+    "coordinates": {
+      "latitude": 61.160443,
+      "longitude": 7.336834,
+    },
+    "name": "Mannheller ferjekai",
+    "place": "NSR:StopPlace:58180",
+  },
 };
 
 const today = new Date();
