@@ -67,24 +67,26 @@ main {
         </style>
       </head>
       <body>
-        {ferryData.map((data) => {
-          return (
-            <section>
-              <h2>{places[data.from].name} to {places[data.to].name}</h2>
-              <ol>
-                {data.data
-                  ?.map((timestamp) => (
-                    <li>
-                      {(new Date(timestamp)).toLocaleTimeString(
-                        "no-NO",
-                        { timeZone: "Europe/Oslo" },
-                      )}
-                    </li>
-                  ))}
-              </ol>
-            </section>
-          );
-        })}
+        <main>
+          {ferryData.map((data) => {
+            return (
+              <section>
+                <h2>{places[data.from].name} to {places[data.to].name}</h2>
+                <ol>
+                  {data.data
+                    ?.map((timestamp) => (
+                      <li>
+                        {(new Date(timestamp)).toLocaleTimeString(
+                          "no-NO",
+                          { timeZone: "Europe/Oslo" },
+                        )}
+                      </li>
+                    ))}
+                </ol>
+              </section>
+            );
+          })}
+        </main>
       </body>
     </html>
   );
