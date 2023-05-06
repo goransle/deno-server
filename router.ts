@@ -4,8 +4,8 @@ type CallbackHandler = (
 ) => Promise<Response>;
 
 export interface Route {
-    pattern: URLPattern;
-    handler:  CallbackHandler;
+  pattern: URLPattern;
+  handler: CallbackHandler;
 }
 
 export const routes: Record<string, Route[]> = {
@@ -14,7 +14,6 @@ export const routes: Record<string, Route[]> = {
   PUT: [],
   PATCH: [],
 };
-
 
 export function addRoute(
   method: string,
@@ -32,5 +31,5 @@ export async function getRoute(req: Request) {
     }
   }
 
-    return new Response(null, {status:404});
+  return new Response(null, { status: 404 });
 }

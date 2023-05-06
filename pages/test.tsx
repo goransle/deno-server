@@ -1,7 +1,7 @@
 import { h } from "https://cdn.skypack.dev/preact";
 
 export type TestProps = {
-    text: string;
+  text: string;
 };
 
 export function Test(props: TestProps) {
