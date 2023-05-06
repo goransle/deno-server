@@ -1,5 +1,9 @@
 {
-  "tasks": {
-    "dev": "deno run -A --watch main.ts"
-  }
+    "tasks": {
+        "dev": "deno run -A --watch main.ts"
+    },
+    "compilerOptions": {
+        "jsx": "react",
+        "jsxFactory": "h",
+    }
 }

@@ -1,6 +1,13 @@
 {
   "version": "2",
   "remote": {
+    "https://cdn.skypack.dev/-/preact-render-to-string@v5.1.12-bxVngfUvIHzdneYL1ENU/dist=es2019,mode=imports/optimized/preact-render-to-string.js": "4c39d922d84b828cd531e9ff8f48db9ee5aca58afac6b30d705a594037aee241",
+    "https://cdn.skypack.dev/-/preact-render-to-string@v6.0.3-fRQ9HpDzsZPAkgKTz4NK/dist=es2019,mode=imports/optimized/preact-render-to-string.js": "08bc3a9cf521f121c52c1dc93315849d19d9b1d46724bedb7a579b5736a8ec81",
+    "https://cdn.skypack.dev/-/preact@v10.13.2-dlVpgQXwu1ooeOhsF8D9/dist=es2019,mode=imports/optimized/preact.js": "77e75ffccb9df5c1b74b1cc6234822d14d6150e460fd3a81e5977ea62626a5c5",
+    "https://cdn.skypack.dev/-/preact@v10.9.0-sxzybx7sBosD3fXpfbt3/dist=es2019,mode=imports/optimized/preact.js": "e66dc0378907870a2230ec2e087214c1ec7678150220412f8438f918744b2ecc",
+    "https://cdn.skypack.dev/preact": "5ae6042c00d768ec3611f1b034f78731ce28e6fdf4517686567b624295738376",
+    "https://cdn.skypack.dev/preact-render-to-string@v5.1.12": "efe649e5d99870f8cf2802857b16cf62a14ce799e3bc1ba9ea3e102efb218f58",
+    "https://cdn.skypack.dev/preact-render-to-string@v6.0.3": "d5994c2df30afa8de01108f9b3f665f680eac3d3a2dbb775a288a042f107492d",
     "https://deno.land/std@0.155.0/async/abortable.ts": "87aa7230be8360c24ad437212311c9e8d4328854baec27b4c7abb26e85515c06",
     "https://deno.land/std@0.155.0/async/deadline.ts": "48ac998d7564969f3e6ec6b6f9bf0217ebd00239b1b2292feba61272d5dd58d0",
     "https://deno.land/std@0.155.0/async/debounce.ts": "de5433bff08a2bb61416fc53b3bd2d5867090c8a815465e5b4a10a77495b1051",
@@ -12,6 +19,27 @@
     "https://deno.land/std@0.155.0/async/tee.ts": "d27680d911816fcb3d231e16d690e7588079e66a9b2e5ce8cc354db94fdce95f",
     "https://deno.land/std@0.155.0/http/server.ts": "e2e16f0b124ffef022ad04797d4250d6e4fc0d9579780999091949b17789dd1a",
     "https://deno.land/x/dotenv@v3.2.0/mod.ts": "077b48773de9205266a0b44c3c3a3c3083449ed64bb0b6cc461b95720678d38e",
-    "https://deno.land/x/dotenv@v3.2.0/util.ts": "693730877b13f8ead2b79b2aa31e2a0652862f7dc0c5f6d2f313f4d39c7b7670"
+    "https://deno.land/x/dotenv@v3.2.0/util.ts": "693730877b13f8ead2b79b2aa31e2a0652862f7dc0c5f6d2f313f4d39c7b7670",
+    "https://esm.sh/preact-render-to-string@6.0.3": "8c4eb785a4121b8d1aec05150fae34c286a2e8e6f54d3fefff385d85e4371ea7",
+    "https://esm.sh/preact@10.13.2": "5ebf0838bbc3c32fc6e78a4cd9dd672f2c36386d0595815d721a6b0941278488",
+    "https://esm.sh/preact@10.13.2/jsx-runtime": "210358188111aff4c83f9bcba94304819b89e565d07430c5655d0ac720f22f03",
+    "https://esm.sh/stable/preact@10.13.2/deno/jsx-runtime.js": "dd40c5bdfe7b277bf51009fb950c550dfb554b6d56a1b3a4cb9bc12bde84bcd1",
+    "https://esm.sh/stable/preact@10.13.2/deno/preact.mjs": "365fab897381f4f403f859c5d12939084560545567108cc90dae901bbe892578",
+    "https://esm.sh/v118/preact@10.13.2/jsx-runtime/src/index.d.ts": "e153460ed2b3fe2ad8b93696ecd48fbf73cd628b0b0ea6692b71804a3af69dfd",
+    "https://esm.sh/v118/preact@10.13.2/src/index.d.ts": "65398710de6aa0a07412da79784e05e6e96763f51c7c91b77344d2d0af06385c",
+    "https://esm.sh/v118/preact@10.13.2/src/jsx.d.ts": "9ac9b82c199fa7b04748807d750eba1a106c0be52041b8617416f88d6fc0a257",
+    "https://esm.sh/v119/preact-render-to-string@6.0.3/deno/preact-render-to-string.mjs": "16bf086ec72d752f54d8ce3f4099ea178789a700c0a9c980b4cc8ef0e6777ce3",
+    "https://esm.sh/v119/preact-render-to-string@6.0.3/src/index.d.ts": "28b13d2c142b9219503f28d91514c9ce09bd9e74928eef1ed76982a3915bd608",
+    "https://jspm.dev/npm:object-assign@4!cjs": "b19fbacc33f0ed8b8b4f8f7d0361a0546f4a5b946c3313fe9d36f4e599ecc41e",
+    "https://jspm.dev/npm:object-assign@4.1.1!cjs": "6da711649ed78e03ebae561088386c8ece0fcc1c8da2b2f32de6515d30ac1db6",
+    "https://jspm.dev/npm:prop-types@15.8.1/_/cc27f2db.js": "8f7e770d367a5b709589a401650496f626a020636014f2fdd6e4dd509ad49e78",
+    "https://jspm.dev/npm:prop-types@15/checkPropTypes!cjs": "e9a4e1411e8522fae9584c2a19b799f1e9c86a1f6d92afac36db0063b34df9e1",
+    "https://jspm.dev/npm:react-dom@16.14.0/cjs/react-dom-server.browser.development.js!cjs": "b30c8c3780ede8e1e972e06c36fee9907bfc6863352592dfc63f7d881d38a12d",
+    "https://jspm.dev/npm:react@16!cjs": "3d25711f9d843ed668d7566a171565c1567331acb60f6d555615f4fdbb42206e",
+    "https://jspm.dev/npm:react@16.14.0!cjs": "ebb4dbffab9ca87eb9c32036f70b40932747669d9615d77c80293b743cc755c4",
+    "https://jspm.dev/npm:react@16.14.0/cjs/react.development.js!cjs": "c9a5f57b27559a9cd124a3fcdb8243464078f0cfe070eb92dbaaa49f970b7df2",
+    "https://jspm.dev/react-dom@16.14.0/server": "1f815558f7ee7c4a27c9727d6521e450d46dcfe48c8fa6028f68c81a9159dc68",
+    "https://jspm.dev/react@16.14.0": "3d25711f9d843ed668d7566a171565c1567331acb60f6d555615f4fdbb42206e",
+    "https://unpkg.com/htm@3.1.1/preact/standalone.module.js": "72284e8e9079c87817145df1110f74e8a2aa040b2fc384922e18dfcb46fc1fd7"
   }
 }
