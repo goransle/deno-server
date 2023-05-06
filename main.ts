@@ -4,6 +4,9 @@ import renderToString from "https://cdn.skypack.dev/preact-render-to-string@v6.0
 
 import { addRoute, getRoute } from "./router.ts";
 
+
+import { Test } from './pages/test.tsx';
+
 // Load config from .env files
 // wrap in try cause files don't work on server
 try {
@@ -20,7 +23,6 @@ const headers = new Headers();
 headers.append("Content-Type", "text/html; charset=UTF-8");
 
 addRoute("GET", "/", async () => {
-    const { Test } = await import('./pages/test.tsx');
 
     const response = renderToString(
         Test({
