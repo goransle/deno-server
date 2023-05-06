@@ -15,7 +15,7 @@ try {
 }
 
 import "./ferrystuff.ts";
-import "./emojistuff.ts";
+        import "./emojistuff.ts";
 
 const headers = new Headers();
 headers.append("Content-Type", "text/html; charset=UTF-8");
