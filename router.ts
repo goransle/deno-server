@@ -1,7 +1,7 @@
 type CallbackHandler = (
   request: Request,
-  params?: Record<string, string>,
-) => Promise<Response>;
+  params?: Record<string, string | undefined>,
+) => Response | Promise<Response>;
 
 export interface Route {
   pattern: URLPattern;
@@ -26,7 +26,8 @@ export function addRoute(
 export async function getRoute(req: Request) {
   for (const route of routes[req.method]) {
     if (route.pattern.test(req.url)) {
-      const params = route.pattern.exec(req.url).pathname.groups;
+      const params = route.pattern.exec(req.url)?.pathname.groups;
+
       return await route.handler(req, params);
     }
   }
