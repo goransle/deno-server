@@ -40,7 +40,7 @@ addRoute("GET", "/", () => {
 });
 
 addRoute("GET", "/ferjetider", async () => {
-  const response = render(
+  const response = "<!DOCTYPE html>" + render(
     await Ferjetider({}),
   );
 
@@ -52,8 +52,8 @@ addRoute("GET", "/ferjetider", async () => {
   );
 });
 
-addRoute("GET", "/ferjetider/:from-:to", async (req, params) => {
-  const response = render(
+addRoute("GET", "/ferjetider/:from-:to", async (_req, params) => {
+  const response = "<!DOCTYPE html>" + render(
     await Ferjetider({ from: params?.from, to: params?.to }),
   );
 
