@@ -1,4 +1,4 @@
-import { addRoute, getRoute } from "./router.ts";
+import { addRoute } from "./router.ts";
 
 async function getEmojiRecords() {
     const options = {

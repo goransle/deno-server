@@ -22,7 +22,7 @@ import './emojistuff.ts'
 const headers = new Headers();
 headers.append("Content-Type", "text/html; charset=UTF-8");
 
-addRoute("GET", "/", async () => {
+addRoute("GET", "/", () => {
 
     const response = renderToString(
         Test({
