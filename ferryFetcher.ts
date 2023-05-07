@@ -95,6 +95,70 @@ async function fetchTransit(
   return data;
 }
 
+export type CachedResponse = {
+  ferries: string;
+  timestamp: string;
+};
+const cachedResponse: Record<string, CachedResponse> = {};
+
+export type FerryData = {
+  ferries: string[] | null;
+};
+
+export async function fetchFerriesCached(
+  params: { from: string; to: string },
+): Promise<FerryData> {
+  const response: FerryData = {
+    ferries: null,
+  };
+
+  const validPlaces = Object.keys(places);
+
+  const { from, to } = params;
+
+  if (validPlaces.includes(to) && validPlaces.includes(from)) {
+    const cacheKey = `${from}-${to}`;
+
+    const cached = cachedResponse[cacheKey];
+    if (cached) {
+      if (cached.ferries && cached.timestamp) {
+        // TODO: add env variable for this
+        const isStale =
+          new Date() - new Date(cached.timestamp) > (2 * 60 * 1000);
+
+        if (!isStale) {
+          console.log(
+            `using cached response for ${cacheKey} from ${cached.timestamp}`,
+          );
+          response.ferries = JSON.parse(cached.ferries);
+        }
+      }
+    }
+
+    if (!response.ferries) {
+      const ferries = await getNextFerries({
+        from,
+        to,
+      });
+
+      if (ferries) {
+        response.ferries = ferries;
+        if (!cachedResponse[cacheKey]) {
+          cachedResponse[cacheKey] = {
+            ferries: "",
+            timestamp: "",
+          };
+        }
+        cachedResponse[cacheKey].ferries = JSON.stringify(response.ferries);
+        cachedResponse[cacheKey].timestamp = (new Date()).toISOString();
+        console.log(`Updated cache for ${cacheKey}`)
+      }
+    }
+  }
+
+  return response;
+}
+
 export async function getNextFerries(config: getNextFerriesObject) {
   const data = await fetchTransit(ferryRequestJSON(config.from, config.to));
   if (data) {
