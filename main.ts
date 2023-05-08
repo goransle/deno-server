@@ -1,8 +1,6 @@
 import { serve } from "https://deno.land/std@0.155.0/http/server.ts";
 import { config } from "https://deno.land/x/dotenv/mod.ts";
-import {
-  render
-} from "https://esm.sh/preact-render-to-string@v6.0.3";
+import { render } from "https://esm.sh/preact-render-to-string@v6.0.3";
 
 import { addRoute, getRoute } from "./router.ts";
 
@@ -70,6 +68,7 @@ serve(async (req: Request) => {
     "localhost:8000",
     "goransle.omg.lol",
     "goransle-deno-server.deno.dev",
+    "goransle.deno.dev",
   ];
 
   const origin = req.headers.get("host");
