@@ -70,22 +70,22 @@ const scripts = [
   },
 ];
 
-scripts.forEach(async (scriptObj) => {
-  const { code } = await bundle(scriptObj.localPath);
-
-  // TOOD: do a bundle before running main
-  addRoute("GET", `/scripts/${scriptObj.name}.js`, (_req, _params) => {
-    const headers = new Headers();
-    headers.append("Content-Type", "application/javascript; charset=UTF-8");
-
-    return new Response(
-      code,
-      {
-        headers,
-      },
-    );
-  });
-});
+// scripts.forEach(async (scriptObj) => {
+//   const { code } = await bundle(scriptObj.localPath);
+//
+//   // TOOD: do a bundle before running main
+//   addRoute("GET", `/scripts/${scriptObj.name}.js`, (_req, _params) => {
+//     const headers = new Headers();
+//     headers.append("Content-Type", "application/javascript; charset=UTF-8");
+//
+//     return new Response(
+//       code,
+//       {
+//         headers,
+//       },
+//     );
+//   });
+// });
 
 serve(async (req: Request) => {
   const response = await getRoute(req);
