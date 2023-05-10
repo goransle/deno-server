@@ -20,7 +20,14 @@ export function FerryList() {
       {ferryLines.map(
         (line) => (
           <li>
-            <a href={"/ferjetider/" + line}>{line}</a>
+            <a href={"/ferjetider/" + line}>
+              {line.split("-")
+                .map((place) =>
+                  place
+                    .charAt(0)
+                    .toUpperCase() + place.slice(1)
+                ).join(" - ")}
+            </a>
           </li>
         ),
       )}
@@ -106,7 +113,7 @@ main {
         </style>
       </head>
       <body>
-        <h1 className={'sr-only'}>Upcoming ferjetider</h1>
+        <h1 className={"sr-only"}>Upcoming ferjetider</h1>
         <main>
           {ferryData.map((data) => {
             return (
