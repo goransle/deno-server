@@ -7,6 +7,27 @@ export type FerjetiderProps = {
   to?: string;
 };
 
+const ferryLines = [
+  "vangsnes-hella",
+  "hella-dragsvik",
+  "vangsnes-dragsvik",
+  "fodnes-mannheller",
+];
+
+export function FerryList() {
+  return (
+    <ul>
+      {ferryLines.map(
+        (line) => (
+          <li>
+            <a href={"/ferjetider/" + line}>{line}</a>
+          </li>
+        ),
+      )}
+    </ul>
+  );
+}
+
 export async function Ferjetider(props: FerjetiderProps) {
   const arr = (props.from && props.to)
     ? [
@@ -70,10 +91,22 @@ main {
     flex-wrap: wrap;
     gap: 1em;
 }
+
+.sr-only { 
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0,0,0,0);
+    border: 0;
+}
 `}
         </style>
       </head>
       <body>
+        <h1 className={'sr-only'}>Upcoming ferjetider</h1>
         <main>
           {ferryData.map((data) => {
             return (
@@ -94,6 +127,12 @@ main {
             );
           })}
         </main>
+        <aside>
+          <nav>
+            <h2>More crossings</h2>
+            <FerryList />
+          </nav>
+        </aside>
       </body>
     </html>
   );
