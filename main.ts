@@ -2,6 +2,8 @@ import { serve } from "https://deno.land/std@0.155.0/http/server.ts";
 import { config } from "https://deno.land/x/dotenv/mod.ts";
 import { render } from "https://esm.sh/preact-render-to-string@v6.0.3";
 
+import { bundle } from "https://deno.land/x/emit/mod.ts";
+
 import { addRoute, getRoute } from "./router.ts";
 
 import { Test } from "./pages/test.tsx";
@@ -59,6 +61,30 @@ addRoute("GET", "/ferjetider/:from-:to", async (_req, params) => {
       headers,
     },
   );
+});
+
+const scripts = [
+  {
+    localPath: "./pages/ferje-client-script.ts",
+    name: "ferje-stuff",
+  },
+];
+
+scripts.forEach(async (scriptObj) => {
+  const { code } = await bundle(scriptObj.localPath);
+
+  // TOOD: do a bundle before running main
+  addRoute("GET", `/scripts/${scriptObj.name}.js`, (_req, _params) => {
+    const headers = new Headers();
+    headers.append("Content-Type", "application/javascript; charset=UTF-8");
+
+    return new Response(
+      code,
+      {
+        headers,
+      },
+    );
+  });
 });
 
 serve(async (req: Request) => {

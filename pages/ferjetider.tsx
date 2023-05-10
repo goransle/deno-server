@@ -140,6 +140,7 @@ main {
             <FerryList />
           </nav>
         </aside>
+        <script src="/scripts/ferje-stuff.js"></script>
       </body>
     </html>
   );
