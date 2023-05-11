@@ -61,7 +61,9 @@ export async function Ferjetider(props: FerjetiderProps) {
   const ferryData = await Promise.all(arr.map(async (fromTo) => {
     return {
       ...fromTo,
-      ...(await fetchFerriesCached(fromTo)),
+      ...(await fetchFerriesCached(fromTo).catch(()=>({
+        ferries: []
+      }))),
     };
   }));
 
@@ -140,7 +142,7 @@ main {
             <FerryList />
           </nav>
         </aside>
-        <script src="/scripts/ferje-stuff.js"></script>
+        <script src="/scripts/ferje-client-script.js"></script>
       </body>
     </html>
   );

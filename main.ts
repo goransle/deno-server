@@ -1,12 +1,11 @@
 import { serve } from "https://deno.land/std@0.155.0/http/server.ts";
 import { config } from "https://deno.land/x/dotenv/mod.ts";
 import { render } from "https://esm.sh/preact-render-to-string@v6.0.3";
-
-import { bundle } from "https://deno.land/x/emit/mod.ts";
-
 import { addRoute, getRoute } from "./router.ts";
 
 import { Test } from "./pages/test.tsx";
+
+import * as esbuild from "https://deno.land/x/esbuild@v0.17.18/mod.js";
 
 // Load config from .env files
 // wrap in try cause files don't work on server
@@ -21,6 +20,8 @@ import { Ferjetider } from "./pages/ferjetider.tsx";
 
 const headers = new Headers();
 headers.append("Content-Type", "text/html; charset=UTF-8");
+
+// Add a route that responds with the current time
 
 addRoute("GET", "/", () => {
   const response = render(
@@ -66,15 +67,27 @@ addRoute("GET", "/ferjetider/:from-:to", async (_req, params) => {
 const scripts = [
   {
     localPath: "./pages/ferje-client-script.ts",
-    name: "ferje-stuff",
+    name: "ferje-client-script",
   },
 ];
 
 scripts.forEach(async (scriptObj) => {
-  const { code } = await bundle(scriptObj.localPath).catch((error) => {
-    console.error(error);
-    return { code: "" };
-  });
+  const built = await esbuild.build({
+    entryPoints: [scriptObj.localPath],
+    bundle: true,
+    outdir: "./tmp/scripts/",
+  })
+    .catch((error) => {
+      console.error(error);
+      return { code: "" };
+    });
+
+  esbuild.stop();
+
+  console.log(built)
+
+  const code = await Deno.readFile('./tmp/scripts/' + scriptObj.name + '.js');
+
 
   // TOOD: do a bundle before running main
   addRoute("GET", `/scripts/${scriptObj.name}.js`, (_req, _params) => {
