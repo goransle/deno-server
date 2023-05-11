@@ -71,37 +71,37 @@ const scripts = [
   },
 ];
 
-scripts.forEach(async (scriptObj) => {
-  const built = await esbuild.build({
-    entryPoints: [scriptObj.localPath],
-    bundle: true,
-    outdir: "./tmp/scripts/",
-  })
-    .catch((error) => {
-      console.error(error);
-      return { code: "" };
-    });
-
-  esbuild.stop();
-
-  console.log(built)
-
-  const code = await Deno.readFile('./tmp/scripts/' + scriptObj.name + '.js');
-
-
-  // TOOD: do a bundle before running main
-  addRoute("GET", `/scripts/${scriptObj.name}.js`, (_req, _params) => {
-    const headers = new Headers();
-    headers.append("Content-Type", "application/javascript; charset=UTF-8");
-
-    return new Response(
-      code,
-      {
-        headers,
-      },
-    );
-  });
-});
+// scripts.forEach(async (scriptObj) => {
+//   const built = await esbuild.build({
+//     entryPoints: [scriptObj.localPath],
+//     bundle: true,
+//     outdir: "./tmp/scripts/",
+//   })
+//     .catch((error) => {
+//       console.error(error);
+//       return { code: "" };
+//     });
+//
+//   esbuild.stop();
+//
+//   console.log(built)
+//
+//   const code = await Deno.readFile('./tmp/scripts/' + scriptObj.name + '.js');
+//
+//
+//   // TOOD: do a bundle before running main
+//   addRoute("GET", `/scripts/${scriptObj.name}.js`, (_req, _params) => {
+//     const headers = new Headers();
+//     headers.append("Content-Type", "application/javascript; charset=UTF-8");
+//
+//     return new Response(
+//       code,
+//       {
+//         headers,
+//       },
+//     );
+//   });
+// });
 
 serve(async (req: Request) => {
   const response = await getRoute(req);

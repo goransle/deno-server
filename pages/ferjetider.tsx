@@ -61,8 +61,8 @@ export async function Ferjetider(props: FerjetiderProps) {
   const ferryData = await Promise.all(arr.map(async (fromTo) => {
     return {
       ...fromTo,
-      ...(await fetchFerriesCached(fromTo).catch(()=>({
-        ferries: []
+      ...(await fetchFerriesCached(fromTo).catch(() => ({
+        ferries: [],
       }))),
     };
   }));
@@ -116,6 +116,7 @@ main {
       </head>
       <body>
         <h1 className={"sr-only"}>Upcoming ferjetider</h1>
+        <button id="refetch-button">Refetch</button>
         <main>
           {ferryData.map((data) => {
             return (

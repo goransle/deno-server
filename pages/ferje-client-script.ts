@@ -1,3 +1,6 @@
-import { places } from "../ferryFetcher.ts";
+import { fetchFerriesCached, places } from "../ferryFetcher.ts";
 
-console.log(places);
+document.querySelector("#refetch-button")
+  ?.addEventListener("click", (e) => {
+    window.location.reload();
+  });
