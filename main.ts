@@ -5,7 +5,10 @@ import { addRoute, getRoute } from "./router.ts";
 
 import { Test } from "./pages/test.tsx";
 
-import * as esbuild from "https://deno.land/x/esbuild@v0.17.18/mod.js";
+import * as esbuild from "https://deno.land/x/esbuild@v0.17.18/wasm.js";
+import { denoPlugins } from "https://deno.land/x/esbuild_deno_loader@0.7.0/mod.ts";
+
+import scripts from './scripts.json' assert { type: "json" } ;
 
 // Load config from .env files
 // wrap in try cause files don't work on server
@@ -64,44 +67,22 @@ addRoute("GET", "/ferjetider/:from-:to", async (_req, params) => {
   );
 });
 
-const scripts = [
-  {
-    localPath: "./pages/ferje-client-script.ts",
-    name: "ferje-client-script",
-  },
-];
+scripts.forEach(async (scriptObj) => {
+  const code = await Deno.readFile("./dist/scripts/" + scriptObj.name + ".js");
 
-// scripts.forEach(async (scriptObj) => {
-//   const built = await esbuild.build({
-//     entryPoints: [scriptObj.localPath],
-//     bundle: true,
-//     outdir: "./tmp/scripts/",
-//   })
-//     .catch((error) => {
-//       console.error(error);
-//       return { code: "" };
-//     });
-//
-//   esbuild.stop();
-//
-//   console.log(built)
-//
-//   const code = await Deno.readFile('./tmp/scripts/' + scriptObj.name + '.js');
-//
-//
-//   // TOOD: do a bundle before running main
-//   addRoute("GET", `/scripts/${scriptObj.name}.js`, (_req, _params) => {
-//     const headers = new Headers();
-//     headers.append("Content-Type", "application/javascript; charset=UTF-8");
-//
-//     return new Response(
-//       code,
-//       {
-//         headers,
-//       },
-//     );
-//   });
-// });
+  // TOOD: do a bundle before running main
+  addRoute("GET", `/scripts/${scriptObj.name}.js`, (_req, _params) => {
+    const headers = new Headers();
+    headers.append("Content-Type", "application/javascript; charset=UTF-8");
+
+    return new Response(
+      code,
+      {
+        headers,
+      },
+    );
+  });
+});
 
 serve(async (req: Request) => {
   const response = await getRoute(req);

@@ -116,7 +116,6 @@ main {
       </head>
       <body>
         <h1 className={"sr-only"}>Upcoming ferjetider</h1>
-        <button id="refetch-button">Refetch</button>
         <main>
           {ferryData.map((data) => {
             return (
@@ -137,6 +136,7 @@ main {
             );
           })}
         </main>
+        <button id="refetch-button">Refetch</button>
         <aside>
           <nav>
             <h2>More crossings</h2>
