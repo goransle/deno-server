@@ -35,6 +35,43 @@ export function FerryList() {
   );
 }
 
+function getPlaceName(place: string): string | null {
+  if (places[place]) {
+    return places[place].name;
+  }
+
+  return null;
+}
+
+function formatTimestamp(timestamp: string) {
+  return (new Date(timestamp)).toLocaleTimeString(
+    "no-NO",
+    { timeZone: "Europe/Oslo" },
+  );
+}
+
+export type FerrySectionProps = {
+  from: string;
+  to: string;
+  ferries: string[];
+};
+
+export function FerrySection(props: FerrySectionProps) {
+  return (
+    <section>
+      <h2>{getPlaceName(props.from)} to {getPlaceName(props.to)}</h2>
+      <ol>
+        {props.ferries
+          .map((timestamp) => (
+            <li>
+              {formatTimestamp(timestamp)}
+            </li>
+          ))}
+      </ol>
+    </section>
+  );
+}
+
 export async function Ferjetider(props: FerjetiderProps) {
   const arr = (props.from && props.to)
     ? [
@@ -119,20 +156,11 @@ main {
         <main>
           {ferryData.map((data) => {
             return (
-              <section>
-                <h2>{places[data.from].name} to {places[data.to].name}</h2>
-                <ol>
-                  {data.ferries
-                    ?.map((timestamp) => (
-                      <li>
-                        {(new Date(timestamp)).toLocaleTimeString(
-                          "no-NO",
-                          { timeZone: "Europe/Oslo" },
-                        )}
-                      </li>
-                    ))}
-                </ol>
-              </section>
+              <FerrySection
+                from={data.from}
+                to={data.to}
+                ferries={data.ferries as string[]}
+              />
             );
           })}
         </main>
