@@ -35,7 +35,7 @@ export function FerryList() {
   );
 }
 
-function getPlaceName(place: string): string | null {
+export function getPlaceName(place: string): string | null {
   if (places[place]) {
     return places[place].name;
   }
@@ -43,7 +43,7 @@ function getPlaceName(place: string): string | null {
   return null;
 }
 
-function formatTimestamp(timestamp: string) {
+export function formatTimestamp(timestamp: string) {
   return (new Date(timestamp)).toLocaleTimeString(
     "no-NO",
     { timeZone: "Europe/Oslo" },
@@ -59,7 +59,15 @@ export type FerrySectionProps = {
 export function FerrySection(props: FerrySectionProps) {
   return (
     <section>
-      <h2>{getPlaceName(props.from)} to {getPlaceName(props.to)}</h2>
+      <h2>
+        <span className={"ferry-from"} data-original={props.from}>
+          {getPlaceName(props.from)}
+        </span>{" "}
+        to{" "}
+        <span className={"ferry-to"} data-original={props.to}>
+          {getPlaceName(props.to)}
+        </span>
+      </h2>
       <ol>
         {props.ferries
           .map((timestamp) => (
@@ -171,6 +179,25 @@ main {
             <FerryList />
           </nav>
         </aside>
+        <dialog id="placeDialog">
+          <form>
+            <p>
+              <label>
+                Select a different place
+                <select>
+                  {Object.entries(places)
+                    .map(([key, place]) => {
+                      return <option value={key}>{place.name}</option>;
+                    })}
+                </select>
+              </label>
+            </p>
+            <div>
+              <button value="cancel" formmethod="dialog">Cancel</button>
+              <button id="confirmBtn" value="default">Submit</button>
+            </div>
+          </form>
+        </dialog>
         <script src="/scripts/ferje-client-script.js"></script>
       </body>
     </html>
