@@ -88,6 +88,7 @@ async function fetchTransit(
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      "ET-Client-Name": "goransle-ferjetider",
     },
     body: JSON.stringify(payload),
   }).then((res) => res.ok ? res.json() : null);
