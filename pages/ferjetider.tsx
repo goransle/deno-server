@@ -92,6 +92,7 @@ export function FerrySection(props: FerrySectionProps) {
           {getPlaceName(props.to)}
         </span>
       </h2>
+      <p className="info"></p>
       <ol>
         {props.ferries
           .map((timestamp) => (
