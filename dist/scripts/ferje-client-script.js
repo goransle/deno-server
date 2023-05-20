@@ -59,6 +59,10 @@
     )?.addEventListener("click", () => {
       if (settingsDialog) {
         settingsDialog.showModal();
+        const existingSettings = window.localStorage.getItem("allowedSettings");
+        if (existingSettings && existingSettings.includes("geolocate")) {
+          document.querySelector("#geolocate-checkbox")?.setAttribute("checked", "true");
+        }
       }
     });
     document.querySelector("#settingsSave")?.addEventListener(

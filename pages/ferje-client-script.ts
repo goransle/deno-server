@@ -69,6 +69,14 @@ if (settingsDialog) {
   )?.addEventListener("click", () => {
     if (settingsDialog) {
       settingsDialog.showModal();
+      const existingSettings = window.localStorage.getItem("allowedSettings");
+      if (existingSettings && existingSettings.includes("geolocate")) {
+          //TODO: add better handling
+        document.querySelector("#geolocate-checkbox")?.setAttribute(
+          "checked",
+          "true",
+        );
+      }
     }
   });
   document.querySelector<HTMLButtonElement>("#settingsSave")?.addEventListener(
