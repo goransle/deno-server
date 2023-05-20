@@ -8,7 +8,7 @@ import { Test } from "./pages/test.tsx";
 import * as esbuild from "https://deno.land/x/esbuild@v0.17.18/wasm.js";
 import { denoPlugins } from "https://deno.land/x/esbuild_deno_loader@0.7.0/mod.ts";
 
-import scripts from './scripts.json' assert { type: "json" } ;
+import scripts from "./scripts.json" assert { type: "json" };
 
 // Load config from .env files
 // wrap in try cause files don't work on server
@@ -20,6 +20,7 @@ try {
 
 import "./emojistuff.ts";
 import { Ferjetider } from "./pages/ferjetider.tsx";
+import { getFerryDistance } from "./ferryFetcher.ts";
 
 const headers = new Headers();
 headers.append("Content-Type", "text/html; charset=UTF-8");
@@ -66,6 +67,32 @@ addRoute("GET", "/ferjetider/:from-:to", async (_req, params) => {
     },
   );
 });
+
+addRoute(
+  "GET",
+  "/ferje-directions/:ferjenavn/:latlon",
+  async (_req, params) => {
+    console.log(params);
+
+    if (params?.ferjenavn && params?.latlon) {
+      const { ferjenavn, latlon } = params;
+      const directions = await getFerryDistance(ferjenavn, latlon);
+      if (directions) {
+        const headers = new Headers();
+        headers.append("Content-Type", "application/json; charset=UTF-8");
+
+        return new Response(
+          JSON.stringify(directions),
+          {
+            headers,
+          },
+        );
+      }
+    }
+
+    return new Response();
+  },
+);
 
 scripts.forEach(async (scriptObj) => {
   const code = await Deno.readFile("./dist/scripts/" + scriptObj.name + ".js");

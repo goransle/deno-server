@@ -151,7 +151,7 @@ export async function fetchFerriesCached(
         }
         cachedResponse[cacheKey].ferries = JSON.stringify(response.ferries);
         cachedResponse[cacheKey].timestamp = (new Date()).toISOString();
-        console.log(`Updated cache for ${cacheKey}`)
+        console.log(`Updated cache for ${cacheKey}`);
       }
     }
   }
@@ -174,4 +174,34 @@ export async function getNextFerries(config: getNextFerriesObject) {
 
     return trips.map((tp) => tp.startTime);
   }
+}
+
+export async function getFerryDistance(ferje: string, currentLatLon: string) {
+  const authKey = Deno.env.get("OPEN_ROUTE_KEY");
+  const ferryData = places[ferje];
+
+  if (ferryData && authKey) {
+    const payload = {
+      coordinates: [
+        currentLatLon.split(",").map((val) => parseFloat(val)),
+        [ferryData.coordinates.longitude, ferryData.coordinates.latitude],
+      ],
+    };
+
+    const response = await fetch(
+      "https://api.openrouteservice.org/v2/directions/driving-car",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": authKey,
+        },
+        body: JSON.stringify(payload),
+      },
+    ).then((res) => res.ok ? res.json() : null);
+
+    return response;
+  }
+
+  return null;
 }
