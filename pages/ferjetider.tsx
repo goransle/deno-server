@@ -50,6 +50,30 @@ export function formatTimestamp(timestamp: string) {
   );
 }
 
+export function SettingsDialog() {
+  return (
+    <dialog id="settingsDialog">
+      <form>
+        <p>
+          <label>
+            Use geolocation
+          </label>
+          <input
+            type="checkbox"
+            id="geolocate-checkbox"
+            name="geolocate"
+            value="geolocate"
+          />
+        </p>
+        <div>
+          <button value="cancel" formmethod="dialog">Cancel</button>
+          <button id="settingsSave" value="default">Save</button>
+        </div>
+      </form>
+    </dialog>
+  );
+}
+
 export type FerrySectionProps = {
   from: string;
   to: string;
@@ -179,6 +203,8 @@ main {
             <FerryList />
           </nav>
         </aside>
+        <button id="settings-toggle">🛠️</button>
+        <SettingsDialog />
         <dialog id="placeDialog">
           <form>
             <p>
