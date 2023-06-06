@@ -1,0 +1,13 @@
+name: CI
+
+on:
+  repository_dispatch:
+    types: [testing]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps: 
+      - uses: actions/checkout@v2
+      - name: testing testing
+        run: echo testing
