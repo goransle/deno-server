@@ -10,5 +10,7 @@ jobs:
     steps: 
       - uses: actions/checkout@v3
       - uses: denoland/setup-deno@v1
+      - name: event file
+        run: cat $GITHUB_EVENT_PATH
       - name: testing testing
         run: deno lint
