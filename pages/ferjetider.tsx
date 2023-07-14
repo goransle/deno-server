@@ -109,7 +109,8 @@ export function FerrySection(props: FerrySectionProps) {
       {cams[props.from] && (
         <details>
           <summary>View webcam</summary>
-          <img alt="" src={cams[props.from]}></img>
+          <img alt="" style={{ maxWidth: "100vw" }} src={cams[props.from]}>
+          </img>
         </details>
       )}
     </section>
