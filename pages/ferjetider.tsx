@@ -17,6 +17,9 @@ const ferryLines = [
 const cams = {
   "vangsnes": "https://webkamera.atlas.vegvesen.no/public/kamera?id=1429036_1",
   "hella": "https://webkamera.atlas.vegvesen.no/public/kamera?id=1429039_1",
+  "dragsvik": "https://webkamera.atlas.vegvesen.no/public/kamera?id=1429040_1",
+  "mannheller":
+    "https://webkamera.atlas.vegvesen.no/public/kamera?id=1429028_1",
 };
 
 export function FerryList() {
@@ -52,7 +55,7 @@ export function formatTimestamp(timestamp: string) {
   return (new Date(timestamp)).toLocaleTimeString(
     "no-NO",
     { timeZone: "Europe/Oslo" },
-  );
+  ).replace(':00', '');
 }
 
 export function SettingsDialog() {
