@@ -14,6 +14,11 @@ const ferryLines = [
   "fodnes-mannheller",
 ];
 
+const cams = {
+  "vangsnes": "https://webkamera.atlas.vegvesen.no/public/kamera?id=1429036_1",
+  "hella": "https://webkamera.atlas.vegvesen.no/public/kamera?id=1429039_1",
+};
+
 export function FerryList() {
   return (
     <ul>
@@ -101,6 +106,12 @@ export function FerrySection(props: FerrySectionProps) {
             </li>
           ))}
       </ol>
+      {cams[props.from] && (
+        <details>
+          <summary>View webcam</summary>
+          <img alt="" src={cams[props.from]}></img>
+        </details>
+      )}
     </section>
   );
 }
