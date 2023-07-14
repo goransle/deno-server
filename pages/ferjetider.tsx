@@ -55,7 +55,7 @@ export function formatTimestamp(timestamp: string) {
   return (new Date(timestamp)).toLocaleTimeString(
     "no-NO",
     { timeZone: "Europe/Oslo" },
-  ).replace(':00', '');
+  ).replace(":00", "");
 }
 
 export function SettingsDialog() {
@@ -101,7 +101,7 @@ export function FerrySection(props: FerrySectionProps) {
         </span>
       </h2>
       <p className="info"></p>
-      <ol>
+      <ol style={{ listStyle: "square" }}>
         {props.ferries
           .map((timestamp) => (
             <li>
