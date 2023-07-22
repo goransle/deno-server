@@ -214,7 +214,11 @@ main {
             ferries={ferryData.ferries as string[]}
           />
         </main>
-        <button id="refetch-button" hx-get="/ferjetider" hx-target="body">
+        <button
+          id="refetch-button"
+          hx-get={`/ferjetider/${ferryData.from}-${ferryData.to}`}
+          hx-target="body"
+        >
           Refetch
         </button>
         <aside>
