@@ -5,9 +5,6 @@ import { addRoute, getRoute } from "./router.ts";
 
 import { Test } from "./pages/test.tsx";
 
-import * as esbuild from "https://deno.land/x/esbuild@v0.17.18/wasm.js";
-import { denoPlugins } from "https://deno.land/x/esbuild_deno_loader@0.7.0/mod.ts";
-
 import scripts from "./scripts.json" assert { type: "json" };
 
 // Load config from .env files
@@ -93,6 +90,23 @@ addRoute(
     return new Response();
   },
 );
+
+// addRoute("GET", "*", async (req) => {
+//   console.log(req);
+//
+//   const filePath = "./public" + new URL(req.url).pathname;
+//
+//   const fileSize = (await Deno.stat(filePath)).size;
+//
+//   if (fileSize) {
+//     const file = await Deno.open(filePath);
+//     return new Response(file.readable, {
+//       headers: { "content-length": fileSize.toString() },
+//     });
+//   }
+//
+//   return new Response("hello");
+// });
 
 scripts.forEach(async (scriptObj) => {
   const code = await Deno.readFile("./dist/scripts/" + scriptObj.name + ".js");

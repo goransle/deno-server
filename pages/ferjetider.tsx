@@ -99,6 +99,16 @@ export function FerrySection(props: FerrySectionProps) {
         <span className={"ferry-to"} data-original={props.to}>
           {getPlaceName(props.to)}
         </span>
+        <span>
+          <button
+            hx-swap="outerHTML"
+            hx-push-url="true"
+            hx-get={`/ferjetider/${props.to}-${props.from}`}
+            hx-target="body"
+          >
+            🔀
+          </button>
+        </span>
       </h2>
       <p className="info"></p>
       <ol style={{ listStyle: "square" }}>
@@ -127,23 +137,15 @@ export async function Ferjetider(props: FerjetiderProps) {
         from: props.from,
         to: props.to,
       },
-      {
-        from: props.to,
-        to: props.from,
-      },
     ]
     : [
       {
         from: "vangsnes",
         to: "hella",
       },
-      {
-        from: "hella",
-        to: "vangsnes",
-      },
     ];
 
-  const ferryData = await Promise.all(arr.map(async (fromTo) => {
+  const [ferryData] = await Promise.all(arr.map(async (fromTo) => {
     return {
       ...fromTo,
       ...(await fetchFerriesCached(fromTo).catch(() => ({
@@ -198,21 +200,23 @@ main {
 }
 `}
         </style>
+        <script src="/scripts/htmx.js"></script>
       </head>
-      <body>
+      <body
+        hx-trigger="load delay:2m"
+        hx-get={`/ferjetider/${ferryData.from}-${ferryData.to}`}
+      >
         <h1 className={"sr-only"}>Upcoming ferjetider</h1>
         <main>
-          {ferryData.map((data) => {
-            return (
-              <FerrySection
-                from={data.from}
-                to={data.to}
-                ferries={data.ferries as string[]}
-              />
-            );
-          })}
+          <FerrySection
+            from={ferryData.from}
+            to={ferryData.to}
+            ferries={ferryData.ferries as string[]}
+          />
         </main>
-        <button id="refetch-button">Refetch</button>
+        <button id="refetch-button" hx-get="/ferjetider" hx-target="body">
+          Refetch
+        </button>
         <aside>
           <nav>
             <h2>More crossings</h2>

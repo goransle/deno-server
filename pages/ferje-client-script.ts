@@ -1,9 +1,9 @@
 import { fetchFerriesCached, places } from "../ferryFetcher.ts";
 
-document.querySelector("#refetch-button")
-  ?.addEventListener("click", () => {
-    window.location.reload();
-  });
+// document.querySelector("#refetch-button")
+//   ?.addEventListener("click", () => {
+//     window.location.reload();
+//   });
 
 const dialog = document.getElementById<HTMLDialogElement>("placeDialog");
 

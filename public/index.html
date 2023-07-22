@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src="./scripts/htmx.js"></script>
+    </head>
+    <body>
+        <div hx-get="/ferjetider"
+            hx-trigger="every 2mins"
+            hx-swap="outerHTML"
+            >
+        </div>
+    </body>
+</html>
+

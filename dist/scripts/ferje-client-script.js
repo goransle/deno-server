@@ -1,8 +1,5 @@
 (() => {
   // pages/ferje-client-script.ts
-  document.querySelector("#refetch-button")?.addEventListener("click", () => {
-    window.location.reload();
-  });
   var dialog = document.getElementById("placeDialog");
   document.querySelectorAll(".ferry-from, .ferry-to")?.forEach(
     (element) => {
