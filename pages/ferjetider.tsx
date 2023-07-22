@@ -7,13 +7,6 @@ export type FerjetiderProps = {
   to?: string;
 };
 
-const ferryLines = [
-  "vangsnes-hella",
-  "hella-dragsvik",
-  "vangsnes-dragsvik",
-  "fodnes-mannheller",
-];
-
 const cams = {
   "vangsnes": "https://webkamera.atlas.vegvesen.no/public/kamera?id=1429036_1",
   "hella": "https://webkamera.atlas.vegvesen.no/public/kamera?id=1429039_1",
@@ -21,27 +14,6 @@ const cams = {
   "mannheller":
     "https://webkamera.atlas.vegvesen.no/public/kamera?id=1429028_1",
 };
-
-export function FerryList() {
-  return (
-    <ul>
-      {ferryLines.map(
-        (line) => (
-          <li>
-            <a href={"/ferjetider/" + line}>
-              {line.split("-")
-                .map((place) =>
-                  place
-                    .charAt(0)
-                    .toUpperCase() + place.slice(1)
-                ).join(" - ")}
-            </a>
-          </li>
-        ),
-      )}
-    </ul>
-  );
-}
 
 export function getPlaceName(place: string): string | null {
   if (places[place]) {
@@ -122,7 +94,12 @@ export function FerrySection(props: FerrySectionProps) {
       {cams[props.from] && (
         <details>
           <summary>View webcam</summary>
-          <img alt="" style={{ maxWidth: "100vw" }} src={cams[props.from]}>
+          <img
+            loading="lazy"
+            alt=""
+            style={{ maxWidth: "100vw" }}
+            src={cams[props.from]}
+          >
           </img>
         </details>
       )}
@@ -224,7 +201,7 @@ main {
         <aside>
           <nav>
             <h2>More crossings</h2>
-            <FerryList />
+            <div hx-get="/ferjeliste" hx-trigger="load"></div>
           </nav>
         </aside>
         <button id="settings-toggle">🛠️</button>

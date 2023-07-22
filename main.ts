@@ -17,6 +17,7 @@ try {
 
 import "./emojistuff.ts";
 import { Ferjetider } from "./pages/ferjetider.tsx";
+import { Ferjeliste } from "./pages/ferjeliste.tsx";
 import { getFerryDistance } from "./ferryFetcher.ts";
 
 const headers = new Headers();
@@ -29,6 +30,19 @@ addRoute("GET", "/", () => {
     Test({
       text: "hello",
     }),
+  );
+
+  return new Response(
+    response,
+    {
+      headers,
+    },
+  );
+});
+
+addRoute("GET", "/ferjeliste", async () => {
+  const response = "<!DOCTYPE html>" + render(
+    await Ferjeliste({}),
   );
 
   return new Response(
