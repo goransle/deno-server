@@ -185,12 +185,12 @@ main {
       >
 
       <div hx-get="/status-messages/index.html"
-          hx-trigger="every 2mins"
+          hx-trigger="load"
           hx-swap="innerHTML"
           >
        </div>
       <div hx-get={`/status-messages/${ferryData.from}-${ferryData.to}.html`}
-          hx-trigger="every 2mins"
+          hx-trigger="load"
           hx-swap="innerHTML"
           >
        </div>
