@@ -184,6 +184,16 @@ main {
         hx-get={`/ferjetider/${ferryData.from}-${ferryData.to}`}
       >
 
+      <div hx-get="/status-messages/index.html"
+          hx-trigger="every 2mins"
+          hx-swap="innerHTML"
+          >
+       </div>
+      <div hx-get={`/status-messages/${ferryData.from}-${ferryData.to}.html`}
+          hx-trigger="every 2mins"
+          hx-swap="innerHTML"
+          >
+       </div>
         <h1 className={"sr-only"}>Upcoming ferjetider</h1>
         <main>
           <FerrySection

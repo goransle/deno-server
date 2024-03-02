@@ -1,5 +1,9 @@
 {
-  "version": "2",
+  "version": "3",
+  "redirects": {
+    "https://deno.land/x/dotenv/mod.ts": "https://deno.land/x/dotenv@v3.2.2/mod.ts",
+    "https://esm.sh/preact": "https://esm.sh/preact@10.13.2"
+  },
   "remote": {
     "https://cdn.skypack.dev/-/preact-render-to-string@v6.0.3-fRQ9HpDzsZPAkgKTz4NK/dist=es2019,mode=imports/optimized/preact-render-to-string.js": "08bc3a9cf521f121c52c1dc93315849d19d9b1d46724bedb7a579b5736a8ec81",
     "https://cdn.skypack.dev/-/preact@v10.13.2-dlVpgQXwu1ooeOhsF8D9/dist=es2019,mode=imports/optimized/preact.js": "77e75ffccb9df5c1b74b1cc6234822d14d6150e460fd3a81e5977ea62626a5c5",

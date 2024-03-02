@@ -105,6 +105,22 @@ addRoute(
   },
 );
 
+addRoute(
+    "GET",
+    "/status-messages/*",
+    async function (req){
+        const filePath = "./public/status-messages/" + req.url.split("/status-messages/")[1];
+        const file = await Deno.readTextFile(filePath).catch(()=> null);
+        if (file) {
+            const headers = new Headers();
+            headers.append("Content-Type", "text/html; charset=UTF-8");
+            return new Response(file, { headers });
+        }
+
+        return new Response();
+    }
+)
+
 // addRoute("GET", "*", async (req) => {
 //   console.log(req);
 //
