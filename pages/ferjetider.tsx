@@ -60,6 +60,13 @@ export type FerrySectionProps = {
   ferries: string[];
 };
 
+function getLink(from: string, to: string) {
+    const fromPlace = places[from];
+    const toPlace = places[to];
+
+    return `https://entur.no/reiseresultater?transportModes=car_ferry&date=${Date.now()}tripMode=oneway&walkSpeed=1.3&minimumTransferTime=120&timepickerMode=departAfter&startId=${fromPlace.place}&startLabel=${fromPlace.name}&startLat=${fromPlace.coordinates.latitude}&startLon=${fromPlace.coordinates.longitude}&stopId=${toPlace.place}&stopLabel=${toPlace.name}&stopLat=${toPlace.coordinates.latitude}&stopLon=${toPlace.coordinates.longitude}`;
+}
+
 export function FerrySection(props: FerrySectionProps) {
   return (
     <section>
@@ -75,6 +82,7 @@ export function FerrySection(props: FerrySectionProps) {
           <button
             hx-swap="outerHTML"
             hx-push-url="true"
+            hx-indicator="#htmx-indicator"
             hx-get={`/ferjetider/${props.to}-${props.from}`}
             hx-target="body"
           >
@@ -131,6 +139,8 @@ export async function Ferjetider(props: FerjetiderProps) {
     };
   }));
 
+  console.log(ferryData);
+
   return (
     <html lang="en">
       <head>
@@ -175,6 +185,18 @@ main {
     clip: rect(0,0,0,0);
     border: 0;
 }
+
+#action-links {
+    display: flex;
+    gap: 1em;
+    a {
+        font-size: 0.8em;
+    }
+
+    button {
+        button-style: none;
+    }
+}
 `}
         </style>
         <script src="/scripts/htmx.js"></script>
@@ -194,6 +216,7 @@ main {
           hx-swap="innerHTML"
           >
        </div>
+       <div id="htmx-indicator" class="htmx-indicator">Loading...</div>
         <h1 className={"sr-only"}>Upcoming ferjetider</h1>
         <main>
           <FerrySection
@@ -201,14 +224,19 @@ main {
             to={ferryData.to}
             ferries={ferryData.ferries as string[]}
           />
+          <section id="action-links">
+              <button
+                hx-swap="outerHTML"
+                hx-push-url="true"
+                hx-get={`/ferjetider/${props.to}-${props.from}`}
+                hx-target="body"
+                hx-indicator="#htmx-indicator"
+              >
+                Swap places 🔄
+              </button>
+              <a href={getLink(ferryData.from, ferryData.to)}>Open in Entur</a>
+          </section>
         </main>
-        <button
-          id="refetch-button"
-          hx-get={`/ferjetider/${ferryData.from}-${ferryData.to}`}
-          hx-target="body"
-        >
-          Refetch
-        </button>
         <aside>
           <nav>
             <h2>More crossings</h2>
