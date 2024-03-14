@@ -242,6 +242,11 @@ main {
             <h2>More crossings</h2>
             <div hx-get="/ferjeliste" hx-trigger="load"></div>
           </nav>
+          <h2>Useful resources</h2>
+          <ul>
+            <li><a href="https://www.vikjavev.no/">Vikjaveven</a></li>
+            <li><a href="https://www.vegvesen.no/trafikk">Vegvesen trafikk</a></li>
+          </ul>
         </aside>
         <button id="settings-toggle">🛠️</button>
         <SettingsDialog />
