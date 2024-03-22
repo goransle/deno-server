@@ -228,7 +228,7 @@ main {
               <button
                 hx-swap="outerHTML"
                 hx-push-url="true"
-                hx-get={`/ferjetider/${props.to}-${props.from}`}
+                hx-get={`/ferjetider/${ferryData.to}-${ferryData.from}`}
                 hx-target="body"
                 hx-indicator="#htmx-indicator"
               >
