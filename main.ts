@@ -25,11 +25,9 @@ headers.append("Content-Type", "text/html; charset=UTF-8");
 
 // Add a route that responds with the current time
 
-addRoute("GET", "/", () => {
-  const response = render(
-    Test({
-      text: "hello",
-    }),
+addRoute("GET", "/", async () => {
+  const response = "<!DOCTYPE html>" + render(
+    await Ferjetider({}),
   );
 
   return new Response(
