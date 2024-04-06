@@ -163,6 +163,8 @@ serve(async (req: Request) => {
     "goransle.omg.lol",
     "goransle-deno-server.deno.dev",
     "goransle.deno.dev",
+    "ferjetider.goransle.no",
+    "www.goransle.no"
   ];
 
   const origin = req.headers.get("host");
