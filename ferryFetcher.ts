@@ -103,7 +103,9 @@ export type CachedResponse = {
 const cachedResponse: Record<string, CachedResponse> = {};
 
 export type FerryData = {
-  ferries: string[] | null;
+  ferries: {
+      startTime: string; notices: string[]
+  }[] | null;
 };
 
 export async function fetchFerriesCached(
@@ -162,6 +164,7 @@ export async function fetchFerriesCached(
 
 export async function getNextFerries(config: getNextFerriesObject) {
   const data = await fetchTransit(ferryRequestJSON(config.from, config.to));
+
   if (data) {
     let trips = data.tripPatterns;
     const cursor = data.nextCursor;
@@ -173,7 +176,16 @@ export async function getNextFerries(config: getNextFerriesObject) {
       }
     }
 
-    return trips.map((tp) => tp.startTime);
+    return trips.map((tp) => {
+        const notices = tp.legs.find(l => l?.serviceJourney?.notices)
+            .serviceJourney.notices;
+            console.log(notices)
+
+        return {
+            startTime: tp.startTime,
+            notices
+        };
+    });
   }
 }
 

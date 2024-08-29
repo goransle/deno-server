@@ -93,10 +93,11 @@ export function FerrySection(props: FerrySectionProps) {
       <p className="info"></p>
       <ol style={{ listStyle: "square" }}>
         {props.ferries
-          .map((timestamp) => (
-            <li>
-              {formatTimestamp(timestamp)}
-            </li>
+          .map(({startTime, notices}) => (
+              <li>
+                  {formatTimestamp(startTime)}
+                  {notices.length && <span className="notices">{notices.map(n => n.text).join('\n')}</span>}
+              </li>
           ))}
       </ol>
       {cams[props.from] && (
@@ -184,6 +185,11 @@ main {
     overflow: hidden;
     clip: rect(0,0,0,0);
     border: 0;
+}
+
+.notices {
+    font-size: .7em;
+    margin: auto .5em;
 }
 
 #action-links {
