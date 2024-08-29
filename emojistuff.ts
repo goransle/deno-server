@@ -89,11 +89,33 @@ addRoute("GET", "/click/:emoji", async (_req, params) => {
 });
 
 // TODO add some caching of keys
-addRoute("GET", "/emojis", async (_req, _params) => {
+addRoute("GET", "/emojis.json", async (_req, _params) => {
   const response = await getEmojiRecords();
   if (response) {
     return new Response(JSON.stringify(response));
   }
 
   return new Response("lol");
+});
+
+addRoute("GET", "emojis", async () => {
+    const emojis = await getEmojiRecords();
+    console.log('test')
+
+    console.log({emojis})
+
+    if (emojis) {
+
+        let html = "<!DOCTYPE html><script src='/scripts/htmx.js'></script>";
+
+        // For each emoji, create a button
+        html += emojis.map((emojiObj) => {
+            return `<button hx-get="/click/${emojiObj.emoji}" hx-target="this">${emojiObj.emoji} ${emojiObj.clicks}</button>`;
+        }).join("");
+    
+        return new Response(html);
+    }
+    
+    return new Response("lol");
+
 });
