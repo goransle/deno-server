@@ -1,11 +1,9 @@
 import { serve } from "https://deno.land/std@0.155.0/http/server.ts";
 import { config } from "https://deno.land/x/dotenv/mod.ts";
-import { render } from "https://esm.sh/preact-render-to-string@v6.0.3";
+import { render } from "https://esm.sh/preact-render-to-string@6.5.12";
 import { addRoute, getRoute } from "./router.ts";
 
-import { Test } from "./pages/test.tsx";
-
-import scripts from "./scripts.json" assert { type: "json" };
+import scripts from "./scripts.json" with { type: "json" };
 
 // Load config from .env files
 // wrap in try cause files don't work on server
@@ -188,4 +186,18 @@ serve(async (req: Request) => {
 
     return response;
   } else return new Response();
+});
+
+
+Deno.cron("FerryFetchJob", "*/60 * * * *", async() => {
+    const ferries = [
+        ['vangsnes', 'hella']
+    ];
+
+    for (const [from, to] of ferries){
+        await Ferjetider({ from, to });
+        await Ferjetider({from: to, to: from });
+    }
+
+  console.log("cron job executed");
 });

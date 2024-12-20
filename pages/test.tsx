@@ -1,4 +1,4 @@
-import { h } from "https://esm.sh/preact";
+import { h } from "https://esm.sh/preact@10.25.3";
 
 export type TestProps = {
   text: string;
