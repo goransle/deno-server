@@ -189,7 +189,7 @@ serve(async (req: Request) => {
 });
 
 
-Deno.cron("FerryFetchJob", "*/60 * * * *", async() => {
+Deno.cron("FerryFetchJob", "0 * * * *", async() => {
     const ferries = [
         ['vangsnes', 'hella']
     ];
