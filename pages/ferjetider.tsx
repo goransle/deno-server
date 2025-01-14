@@ -93,7 +93,7 @@ export function FerrySection(props: FerrySectionProps) {
       <p className="info"></p>
       <ol style={{ listStyle: "square" }}>
         {props.ferries
-          .map(({startTime, notices}) => (
+          ?.map(({startTime, notices}) => (
               <li>
                   {formatTimestamp(startTime)}
                   {notices.length && <span className="notices">{notices.map(n => n.text).join('\n')}</span>}
