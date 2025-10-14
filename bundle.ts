@@ -1,4 +1,4 @@
-import * as esbuild from "https://deno.land/x/esbuild@v0.17.18/mod.js";
+import * as esbuild from "https://deno.land/x/esbuild@v0.20.2/mod.js";
 
 import scripts from "./scripts.json" with { type: "json" };
 
