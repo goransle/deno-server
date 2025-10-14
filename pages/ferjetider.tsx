@@ -1,13 +1,17 @@
 import { h } from "https://esm.sh/preact@10.25.3";
 
-import { fetchFerriesCached, places } from "../ferryFetcher.ts";
+import {
+  Driftsmelding,
+  fetchFerriesCached,
+  places,
+} from "../ferryFetcher.ts";
 
 export type FerjetiderProps = {
   from?: string;
   to?: string;
 };
 
-const cams = {
+const cams: Record<string, string> = {
   "vangsnes": "https://webkamera.atlas.vegvesen.no/public/kamera?id=1429036_1",
   "hella": "https://webkamera.atlas.vegvesen.no/public/kamera?id=1429039_1",
   "dragsvik": "https://webkamera.atlas.vegvesen.no/public/kamera?id=1429040_1",
@@ -54,10 +58,16 @@ export function SettingsDialog() {
   );
 }
 
+type FerryTrip = {
+  startTime: string;
+  notices: { text?: string }[];
+};
+
 export type FerrySectionProps = {
   from: string;
   to: string;
-  ferries: string[];
+  ferries: FerryTrip[];
+  driftsmeldinger: Driftsmelding[];
 };
 
 function getLink(from: string, to: string) {
@@ -92,14 +102,52 @@ export function FerrySection(props: FerrySectionProps) {
       </h2>
       <p className="info"></p>
       <ol style={{ listStyle: "square" }}>
-        {props.ferries
-          ?.map(({startTime, notices}) => (
-              <li>
-                  {formatTimestamp(startTime)}
-                  {notices.length && <span className="notices">{notices.map(n => n.text).join('\n')}</span>}
-              </li>
-          ))}
+        {(props.ferries ?? []).map(({ startTime, notices }, index) => {
+          const noticeText = (notices ?? [])
+            .map((notice) => notice.text?.trim())
+            .filter(Boolean)
+            .join(" · ");
+
+          return (
+            <li key={`${startTime}-${index}`}>
+              {formatTimestamp(startTime)}
+              {noticeText && (
+                <span className="notices">
+                  {noticeText}
+                </span>
+              )}
+            </li>
+          );
+        })}
       </ol>
+      {props.driftsmeldinger.length > 0 && (
+        <aside className="driftsmeldinger">
+          <h3>Driftsmeldingar</h3>
+          <ul>
+            {props.driftsmeldinger.map((melding) => (
+              <li key={melding.id}>
+                <strong>{melding.summary}</strong>
+                {melding.description && (
+                  <span className="driftsmeldinger-description">
+                    {" "}
+                    {melding.description}
+                  </span>
+                )}
+                {melding.infoLinks.length > 0 && (
+                  <span className="driftsmeldinger-links">
+                    {" "}
+                    {melding.infoLinks.map((link) => (
+                      <a key={link.uri} href={link.uri}>
+                        {link.label ?? "Les meir"}
+                      </a>
+                    ))}
+                  </span>
+                )}
+              </li>
+            ))}
+          </ul>
+        </aside>
+      )}
       {cams[props.from] && (
         <details>
           <summary>View webcam</summary>
@@ -136,11 +184,15 @@ export async function Ferjetider(props: FerjetiderProps) {
       ...fromTo,
       ...(await fetchFerriesCached(fromTo).catch(() => ({
         ferries: [],
+        driftsmeldinger: [],
       }))),
     };
   }));
 
   console.log(ferryData);
+
+  const ferries: FerryTrip[] = ferryData.ferries ?? [];
+  const driftsmeldinger = ferryData.driftsmeldinger ?? [];
 
   return (
     <html lang="en">
@@ -192,6 +244,28 @@ main {
     margin: auto .5em;
 }
 
+.driftsmeldinger {
+    font-size: .6em;
+    margin-top: .5em;
+    padding: .5em;
+    border-left: .2em solid currentColor;
+}
+
+.driftsmeldinger ul {
+    margin: 0;
+    padding-left: 1em;
+}
+
+.driftsmeldinger-description,
+.driftsmeldinger-links {
+    display: block;
+    margin-top: .2em;
+}
+
+.driftsmeldinger a {
+    color: inherit;
+}
+
 #action-links {
     display: flex;
     gap: 1em;
@@ -228,7 +302,8 @@ main {
           <FerrySection
             from={ferryData.from}
             to={ferryData.to}
-            ferries={ferryData.ferries as string[]}
+            ferries={ferries}
+            driftsmeldinger={driftsmeldinger}
           />
           <section id="action-links">
               <button
