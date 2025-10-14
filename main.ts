@@ -157,8 +157,6 @@ serve(async (req: Request) => {
   const allowedOrigins = [
     "localhost:8000",
     "goransle.omg.lol",
-    "goransle-deno-server.deno.dev",
-    "goransle.deno.dev",
     "ferjetider.goransle.no",
     "www.goransle.no"
   ];
@@ -166,7 +164,8 @@ serve(async (req: Request) => {
   const origin = req.headers.get("host");
 
   console.log(origin);
-  if (origin && allowedOrigins.includes(origin)) {
+  // Allow specific origins or any deno.dev subdomain
+  if (origin && (allowedOrigins.includes(origin) || origin.endsWith(".deno.dev") || origin === "deno.dev")) {
     response.headers.set(
       "Access-Control-Allow-Origin",
       "*",
