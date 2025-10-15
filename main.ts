@@ -1,5 +1,5 @@
-import { serve } from "https://deno.land/std@0.155.0/http/server.ts";
-import { config } from "https://deno.land/x/dotenv/mod.ts";
+import { serve } from "https://deno.land/std@0.213.0/http/server.ts";
+import { config } from "https://deno.land/x/dotenv@v3.2.2/mod.ts";
 import { render } from "https://esm.sh/preact-render-to-string@6.5.12";
 import { addRoute, getRoute } from "./router.ts";
 
