@@ -219,10 +219,11 @@ export type FerryData = {
     notices: { text?: string }[];
   }[] | null;
   driftsmeldinger: Driftsmelding[];
+  nextCursor?: string;
 };
 
 export async function fetchFerriesCached(
-  params: { from: string; to: string },
+  params: { from: string; to: string; cursor?: string },
 ): Promise<FerryData> {
   const response: FerryData = {
     ferries: null,
@@ -254,22 +255,28 @@ export async function fetchFerriesCached(
     }
 
     if (!response.ferries) {
-      const ferries = await getNextFerries({
+      const result = await getNextFerries({
         from,
         to,
+        cursor: params.cursor,
       });
 
-      if (ferries) {
-        response.ferries = ferries;
-        if (!cachedResponse[cacheKey]) {
-          cachedResponse[cacheKey] = {
-            ferries: "",
-            timestamp: "",
-          };
+      if (result) {
+        response.ferries = result.ferries;
+        response.nextCursor = result.nextCursor;
+        
+        // Only cache non-cursor requests
+        if (!params.cursor) {
+          if (!cachedResponse[cacheKey]) {
+            cachedResponse[cacheKey] = {
+              ferries: "",
+              timestamp: "",
+            };
+          }
+          cachedResponse[cacheKey].ferries = JSON.stringify(response.ferries);
+          cachedResponse[cacheKey].timestamp = (new Date()).toISOString();
+          console.log(`Updated cache for ${cacheKey}`);
         }
-        cachedResponse[cacheKey].ferries = JSON.stringify(response.ferries);
-        cachedResponse[cacheKey].timestamp = (new Date()).toISOString();
-        console.log(`Updated cache for ${cacheKey}`);
       }
     }
 
@@ -283,31 +290,30 @@ export async function fetchFerriesCached(
   return response;
 }
 
-export async function getNextFerries(config: getNextFerriesObject) {
-  const data = await fetchTransit(ferryRequestJSON(config.from, config.to));
+export async function getNextFerries(config: getNextFerriesObject & { cursor?: string }) {
+  const data = await fetchTransit(
+    config.cursor ? { cursor: config.cursor } : ferryRequestJSON(config.from, config.to)
+  );
 
   if (data) {
-    let trips = data.tripPatterns;
-    const cursor = data.nextCursor;
+    const trips = data.tripPatterns;
 
-    if (cursor) {
-      const moreData = await fetchTransit({ cursor });
-      if (moreData) {
-        trips = [...trips, ...moreData.tripPatterns];
-      }
-    }
+    return {
+      ferries: trips.map((tp) => {
+        const notices = (tp.legs ?? [])
+          .flatMap((leg) => leg?.serviceJourney?.notices ?? [])
+          .filter((notice): notice is { text?: string } => Boolean(notice));
 
-    return trips.map((tp) => {
-      const notices = (tp.legs ?? [])
-        .flatMap((leg) => leg?.serviceJourney?.notices ?? [])
-        .filter((notice): notice is { text?: string } => Boolean(notice));
-
-      return {
-        startTime: tp.startTime,
-        notices,
-      };
-    });
+        return {
+          startTime: tp.startTime,
+          notices,
+        };
+      }),
+      nextCursor: data.nextCursor,
+    };
   }
+  
+  return { ferries: [], nextCursor: undefined };
 }
 
 function firstTranslationValue(entries?: SxTranslation[]): string | undefined {

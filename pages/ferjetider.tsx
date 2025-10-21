@@ -68,6 +68,7 @@ export type FerrySectionProps = {
   to: string;
   ferries: FerryTrip[];
   driftsmeldinger: Driftsmelding[];
+  nextCursor?: string;
 };
 
 function getLink(from: string, to: string) {
@@ -101,7 +102,7 @@ export function FerrySection(props: FerrySectionProps) {
         </span>
       </h2>
       <p className="info"></p>
-      <ol style={{ listStyle: "square" }}>
+      <ol id="ferry-list" style={{ listStyle: "square" }}>
         {(props.ferries ?? []).map(({ startTime, notices }, index) => {
           const noticeText = (notices ?? [])
             .map((notice) => notice.text?.trim())
@@ -119,6 +120,17 @@ export function FerrySection(props: FerrySectionProps) {
             </li>
           );
         })}
+        {props.nextCursor && (
+          <button
+            hx-get={`/api/more-ferries/${props.from}-${props.to}/${encodeURIComponent(props.nextCursor)}`}
+            hx-target="#ferry-list"
+            hx-swap="beforeend"
+            hx-indicator="#htmx-indicator"
+            id="fetch-more-button"
+          >
+            Fetch More ⬇️
+          </button>
+        )}
       </ol>
       {props.driftsmeldinger.length > 0 && (
         <aside className="driftsmeldinger">
@@ -193,6 +205,7 @@ export async function Ferjetider(props: FerjetiderProps) {
 
   const ferries: FerryTrip[] = ferryData.ferries ?? [];
   const driftsmeldinger = ferryData.driftsmeldinger ?? [];
+  const nextCursor = ferryData.nextCursor;
 
   return (
     <html lang="en">
@@ -304,6 +317,7 @@ main {
             to={ferryData.to}
             ferries={ferries}
             driftsmeldinger={driftsmeldinger}
+            nextCursor={nextCursor}
           />
           <section id="action-links">
               <button

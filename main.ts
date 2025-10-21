@@ -75,6 +75,47 @@ addRoute("GET", "/ferjetider/:from-:to", async (_req, params) => {
   );
 });
 
+addRoute("GET", "/api/more-ferries/:from-:to/:cursor", async (_req, params) => {
+  const { from, to, cursor } = params ?? {};
+  
+  if (!from || !to || !cursor) {
+    return new Response("Missing parameters", { status: 400 });
+  }
+
+  const { fetchFerriesCached } = await import("./ferryFetcher.ts");
+  const data = await fetchFerriesCached({ from, to, cursor: decodeURIComponent(cursor) });
+
+  if (data) {
+    const responseHeaders = new Headers();
+    responseHeaders.append("Content-Type", "text/html; charset=UTF-8");
+    
+    const ferriesHtml = (data.ferries ?? []).map(({ startTime, notices }, index) => {
+      const noticeText = (notices ?? [])
+        .map((notice) => notice.text?.trim())
+        .filter(Boolean)
+        .join(" · ");
+      
+      const formattedTime = (new Date(startTime)).toLocaleTimeString(
+        "no-NO",
+        { timeZone: "Europe/Oslo" }
+      ).replace(":00", "");
+
+      return `<li key="${startTime}-${index}">${formattedTime}${noticeText ? `<span class="notices">${noticeText}</span>` : ""}</li>`;
+    }).join("");
+
+    const fetchMoreButton = data.nextCursor ? 
+      `<button hx-get="/api/more-ferries/${from}-${to}/${encodeURIComponent(data.nextCursor)}" hx-target="#ferry-list" hx-swap="beforeend" hx-indicator="#htmx-indicator" id="fetch-more-button">Fetch More ⬇️</button>` : 
+      "";
+
+    return new Response(
+      ferriesHtml + fetchMoreButton,
+      { headers: responseHeaders }
+    );
+  }
+
+  return new Response("", { status: 404 });
+});
+
 addRoute(
   "GET",
   "/ferje-directions/:ferjenavn/:latlon",
