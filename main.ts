@@ -100,11 +100,11 @@ addRoute("GET", "/api/more-ferries/:from-:to/:cursor", async (_req, params) => {
         { timeZone: "Europe/Oslo" }
       ).replace(":00", "");
 
-      return `<li key="${startTime}-${index}">${formattedTime}${noticeText ? `<span class="notices">${noticeText}</span>` : ""}</li>`;
+      return `<li>${formattedTime}${noticeText ? `<span class="notices">${noticeText}</span>` : ""}</li>`;
     }).join("");
 
     const fetchMoreButton = data.nextCursor ? 
-      `<button hx-get="/api/more-ferries/${from}-${to}/${encodeURIComponent(data.nextCursor)}" hx-target="#ferry-list" hx-swap="beforeend" hx-indicator="#htmx-indicator" id="fetch-more-button">Fetch More ⬇️</button>` : 
+      `<button hx-get="/api/more-ferries/${from}-${to}/${encodeURIComponent(data.nextCursor)}" hx-swap="outerHTML" hx-indicator="#htmx-indicator" id="fetch-more-button">Fetch More ⬇️</button>` : 
       "";
 
     return new Response(

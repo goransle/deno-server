@@ -123,8 +123,7 @@ export function FerrySection(props: FerrySectionProps) {
         {props.nextCursor && (
           <button
             hx-get={`/api/more-ferries/${props.from}-${props.to}/${encodeURIComponent(props.nextCursor)}`}
-            hx-target="#ferry-list"
-            hx-swap="beforeend"
+            hx-swap="outerHTML"
             hx-indicator="#htmx-indicator"
             id="fetch-more-button"
           >
