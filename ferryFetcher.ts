@@ -296,7 +296,17 @@ export async function getNextFerries(config: getNextFerriesObject & { cursor?: s
   );
 
   if (data) {
-    const trips = data.tripPatterns;
+    let trips = data.tripPatterns;
+    let nextCursor = data.nextCursor;
+
+    // Fetch one more page to give users more results per click
+    if (nextCursor) {
+      const moreData = await fetchTransit({ cursor: nextCursor });
+      if (moreData) {
+        trips = [...trips, ...moreData.tripPatterns];
+        nextCursor = moreData.nextCursor;
+      }
+    }
 
     return {
       ferries: trips.map((tp) => {
@@ -309,7 +319,7 @@ export async function getNextFerries(config: getNextFerriesObject & { cursor?: s
           notices,
         };
       }),
-      nextCursor: data.nextCursor,
+      nextCursor: nextCursor,
     };
   }
   
