@@ -5,6 +5,68 @@ import { fetchFerriesCached, places } from "../ferryFetcher.ts";
 //     window.location.reload();
 //   });
 
+// Haversine distance formula to calculate distance between two coordinates
+function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const R = 6371; // Radius of the Earth in kilometers
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = 
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c; // Distance in kilometers
+}
+
+// Find the closest ferry stop to a given location
+function findClosestFerryStop(userLat: number, userLon: number): string | null {
+  let closestStop: string | null = null;
+  let minDistance = Infinity;
+
+  for (const [key, place] of Object.entries(places)) {
+    const distance = calculateDistance(
+      userLat, 
+      userLon, 
+      place.coordinates.latitude, 
+      place.coordinates.longitude
+    );
+    if (distance < minDistance) {
+      minDistance = distance;
+      closestStop = key;
+    }
+  }
+
+  return closestStop;
+}
+
+// Get the closest ferry route based on user location
+function getClosestFerryRoute(userLat: number, userLon: number): { from: string, to: string } | null {
+  // Define ferry lines (pairs of stops)
+  const ferryLines = [
+    ["vangsnes", "hella"],
+    ["hella", "dragsvik"],
+    ["vangsnes", "dragsvik"],
+    ["fodnes", "mannheller"],
+  ];
+
+  // Find the closest stop
+  const closestStop = findClosestFerryStop(userLat, userLon);
+  
+  if (!closestStop) return null;
+
+  // Find a ferry line that includes the closest stop
+  for (const [from, to] of ferryLines) {
+    if (from === closestStop) {
+      return { from, to };
+    }
+    if (to === closestStop) {
+      return { from: to, to: from }; // Return with closest as "from"
+    }
+  }
+
+  return null;
+}
+
 const dialog = document.getElementById<HTMLDialogElement>("placeDialog");
 
 document.querySelectorAll<HTMLSpanElement>(".ferry-from, .ferry-to")?.forEach(
@@ -166,3 +228,56 @@ function maybeGetGeo() {
 }
 
 maybeGetGeo();
+
+// Auto-redirect to closest ferry route on initial page load
+function redirectToClosestFerry() {
+  const allowedSettings = window.localStorage.getItem("allowedSettings");
+  
+  // Only redirect if geolocation is enabled
+  if (!allowedSettings || !allowedSettings.includes("geolocate")) {
+    return;
+  }
+
+  // Check if we're on a default route (no specific ferry route selected)
+  const currentPath = window.location.pathname;
+  const isDefaultRoute = currentPath === "/" || currentPath === "/ferjetider";
+  
+  if (!isDefaultRoute) {
+    // Already on a specific route, don't redirect
+    return;
+  }
+
+  // Check if we've already redirected in this session
+  const hasRedirected = sessionStorage.getItem("hasRedirectedToClosestFerry");
+  if (hasRedirected === "true") {
+    return;
+  }
+
+  const options = {
+    enableHighAccuracy: true,
+    timeout: 5000,
+    maximumAge: 0,
+  };
+
+  function success(pos: GeolocationPosition) {
+    const crd = pos.coords;
+    console.log("Finding closest ferry based on location:", crd.latitude, crd.longitude);
+    
+    const closestRoute = getClosestFerryRoute(crd.latitude, crd.longitude);
+    
+    if (closestRoute) {
+      console.log(`Redirecting to closest ferry route: ${closestRoute.from} to ${closestRoute.to}`);
+      sessionStorage.setItem("hasRedirectedToClosestFerry", "true");
+      window.location.href = `/ferjetider/${closestRoute.from}-${closestRoute.to}`;
+    }
+  }
+
+  function error(err: GeolocationPositionError) {
+    console.warn(`Could not get location for auto-redirect: ${err.code}: ${err.message}`);
+  }
+
+  navigator.geolocation.getCurrentPosition(success, error, options);
+}
+
+// Run the auto-redirect function
+redirectToClosestFerry();

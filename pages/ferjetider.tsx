@@ -41,6 +41,10 @@ export function SettingsDialog() {
         <p>
           <label>
             Use geolocation
+            <br />
+            <small style={{ fontSize: "0.7em", opacity: 0.8 }}>
+              When enabled, ferry times will default to the closest ferry stop based on your location
+            </small>
           </label>
           <input
             type="checkbox"
