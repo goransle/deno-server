@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ferry Geolocation Demo</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e9ecef;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .ferry-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .ferry-card {
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            border-left: 4px solid #007bff;
+        }
+        .ferry-card h3 {
+            margin: 0 0 10px 0;
+            font-size: 14px;
+        }
+        .ferry-card .distance {
+            color: #666;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⛴️ Ferry Geolocation Demo</h1>
+        <p>This demo shows how the ferry app automatically selects the closest ferry route based on your location.</p>
+        
+        <div>
+            <button id="getLocationBtn">Get My Location</button>
+            <button id="simulateVangsnesBtn">Simulate: Near Vangsnes</button>
+            <button id="simulateHellaBtn">Simulate: Near Hella</button>
+            <button id="simulateMannhellerBtn">Simulate: Near Mannheller</button>
+        </div>
+        
+        <div id="result" class="result" style="display: none;"></div>
+        
+        <div id="ferryList" class="ferry-list" style="display: none;"></div>
+    </div>
+
+    <script>
+        // Ferry stop coordinates from ferryFetcher.ts
+        const places = {
+            "vangsnes": {
+                "place": "NSR:StopPlace:58339",
+                "name": "Vangsnes ferjekai",
+                "coordinates": {
+                    "latitude": 61.174909,
+                    "longitude": 6.637196
+                }
+            },
+            "hella": {
+                "place": "NSR:StopPlace:58324",
+                "name": "Hella ferjekai",
+                "coordinates": {
+                    "latitude": 61.207413,
+                    "longitude": 6.597993
+                }
+            },
+            "dragsvik": {
+                "coordinates": {
+                    "latitude": 61.215077,
+                    "longitude": 6.5649
+                },
+                "name": "Dragsvik ferjekai",
+                "place": "NSR:StopPlace:58344"
+            },
+            "fodnes": {
+                "coordinates": {
+                    "latitude": 61.1487,
+                    "longitude": 7.383853
+                },
+                "name": "Fodnes ferjekai",
+                "place": "NSR:StopPlace:58179"
+            },
+            "mannheller": {
+                "coordinates": {
+                    "latitude": 61.160443,
+                    "longitude": 7.336834
+                },
+                "name": "Mannheller ferjekai",
+                "place": "NSR:StopPlace:58180"
+            }
+        };
+
+        // Ferry lines
+        const ferryLines = [
+            ["vangsnes", "hella"],
+            ["hella", "dragsvik"],
+            ["vangsnes", "dragsvik"],
+            ["fodnes", "mannheller"],
+        ];
+
+        // Haversine distance formula
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371; // Radius of the Earth in kilometers
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = 
+                Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            return R * c;
+        }
+
+        // Find all distances from a location
+        function calculateAllDistances(userLat, userLon) {
+            const distances = [];
+            for (const [key, place] of Object.entries(places)) {
+                const distance = calculateDistance(
+                    userLat, 
+                    userLon, 
+                    place.coordinates.latitude, 
+                    place.coordinates.longitude
+                );
+                distances.push({ key, place, distance });
+            }
+            distances.sort((a, b) => a.distance - b.distance);
+            return distances;
+        }
+
+        // Find the closest ferry stop
+        function findClosestFerryStop(userLat, userLon) {
+            let closestStop = null;
+            let minDistance = Infinity;
+
+            for (const [key, place] of Object.entries(places)) {
+                const distance = calculateDistance(
+                    userLat, 
+                    userLon, 
+                    place.coordinates.latitude, 
+                    place.coordinates.longitude
+                );
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    closestStop = key;
+                }
+            }
+
+            return closestStop;
+        }
+
+        // Get the closest ferry route
+        function getClosestFerryRoute(userLat, userLon) {
+            const closestStop = findClosestFerryStop(userLat, userLon);
+            
+            if (!closestStop) return null;
+
+            for (const [from, to] of ferryLines) {
+                if (from === closestStop) {
+                    return { from, to };
+                }
+                if (to === closestStop) {
+                    return { from: to, to: from };
+                }
+            }
+
+            return null;
+        }
+
+        // Display results
+        function displayResult(lat, lon, isActual = false) {
+            const resultDiv = document.getElementById('result');
+            const ferryListDiv = document.getElementById('ferryList');
+            
+            const closestRoute = getClosestFerryRoute(lat, lon);
+            const distances = calculateAllDistances(lat, lon);
+            
+            let html = `<strong>📍 Location:</strong> ${lat.toFixed(6)}, ${lon.toFixed(6)}<br>`;
+            html += `<strong>🎯 Closest Stop:</strong> ${places[distances[0].key].name} (${distances[0].distance.toFixed(2)} km)<br>`;
+            
+            if (closestRoute) {
+                html += `<strong>⛴️ Recommended Route:</strong> ${places[closestRoute.from].name} → ${places[closestRoute.to].name}<br>`;
+                html += `<strong>🔗 Would redirect to:</strong> /ferjetider/${closestRoute.from}-${closestRoute.to}`;
+            }
+            
+            resultDiv.innerHTML = html;
+            resultDiv.className = 'result success';
+            resultDiv.style.display = 'block';
+            
+            // Display all distances
+            let listHtml = '<h3>Distance to all ferry stops:</h3>';
+            distances.forEach((d, index) => {
+                listHtml += `
+                    <div class="ferry-card" style="border-left-color: ${index === 0 ? '#28a745' : '#007bff'}">
+                        <h3>${index === 0 ? '✅ ' : ''}${d.place.name}</h3>
+                        <div class="distance">${d.distance.toFixed(2)} km away</div>
+                    </div>
+                `;
+            });
+            ferryListDiv.innerHTML = listHtml;
+            ferryListDiv.style.display = 'grid';
+        }
+
+        function displayError(message) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = `<strong>❌ Error:</strong> ${message}`;
+            resultDiv.className = 'result error';
+            resultDiv.style.display = 'block';
+        }
+
+        // Event listeners
+        document.getElementById('getLocationBtn').addEventListener('click', () => {
+            if ('geolocation' in navigator) {
+                document.getElementById('getLocationBtn').disabled = true;
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        displayResult(position.coords.latitude, position.coords.longitude, true);
+                        document.getElementById('getLocationBtn').disabled = false;
+                    },
+                    (error) => {
+                        displayError(`Geolocation error: ${error.message}`);
+                        document.getElementById('getLocationBtn').disabled = false;
+                    },
+                    { enableHighAccuracy: true }
+                );
+            } else {
+                displayError('Geolocation is not supported by your browser');
+            }
+        });
+
+        document.getElementById('simulateVangsnesBtn').addEventListener('click', () => {
+            // Simulate a location near Vangsnes
+            displayResult(61.175, 6.637);
+        });
+
+        document.getElementById('simulateHellaBtn').addEventListener('click', () => {
+            // Simulate a location near Hella
+            displayResult(61.207, 6.598);
+        });
+
+        document.getElementById('simulateMannhellerBtn').addEventListener('click', () => {
+            // Simulate a location near Mannheller
+            displayResult(61.160, 7.337);
+        });
+    </script>
+</body>
+</html>
