@@ -117,6 +117,14 @@ addRoute(
     }
 )
 
+addRoute("GET", "/demo", async () => {
+  const file = await Deno.readTextFile("./demo_geolocation.html");
+  const headers = new Headers();
+  headers.append("Content-Type", "text/html; charset=UTF-8");
+  
+  return new Response(file, { headers });
+});
+
 // addRoute("GET", "*", async (req) => {
 //   console.log(req);
 //
