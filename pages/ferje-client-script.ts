@@ -5,6 +5,35 @@ import { fetchFerriesCached, places } from "../ferryFetcher.ts";
 //     window.location.reload();
 //   });
 
+// Fetch ferry configuration from server
+let ferryLinesFromServer: [string, string][] | null = null;
+
+async function getFerryLines(): Promise<[string, string][]> {
+  if (ferryLinesFromServer) {
+    return ferryLinesFromServer;
+  }
+  
+  try {
+    const response = await fetch('/api/ferry-config');
+    if (response.ok) {
+      const data = await response.json();
+      ferryLinesFromServer = data.ferryLines;
+      return ferryLinesFromServer;
+    }
+  } catch (error) {
+    console.warn('Failed to fetch ferry config from server:', error);
+  }
+  
+  // Fallback to hardcoded ferry lines if API fails
+  ferryLinesFromServer = [
+    ["vangsnes", "hella"],
+    ["hella", "dragsvik"],
+    ["vangsnes", "dragsvik"],
+    ["fodnes", "mannheller"],
+  ];
+  return ferryLinesFromServer;
+}
+
 // Haversine distance formula to calculate distance between two coordinates (fallback)
 function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
   const R = 6371; // Radius of the Earth in kilometers
@@ -85,13 +114,8 @@ async function findClosestFerryStop(userLat: number, userLon: number): Promise<s
 
 // Get the closest ferry route based on user location using road distance
 async function getClosestFerryRoute(userLat: number, userLon: number): Promise<{ from: string, to: string } | null> {
-  // Define ferry lines (pairs of stops)
-  const ferryLines = [
-    ["vangsnes", "hella"],
-    ["hella", "dragsvik"],
-    ["vangsnes", "dragsvik"],
-    ["fodnes", "mannheller"],
-  ];
+  // Get ferry lines from server
+  const ferryLines = await getFerryLines();
 
   // Find the closest stop by road
   const closestStop = await findClosestFerryStop(userLat, userLon);
@@ -180,9 +204,8 @@ if (settingsDialog) {
     if (settingsDialog) {
       settingsDialog.showModal();
       const existingSettings = window.localStorage.getItem("allowedSettings");
-      if (existingSettings && existingSettings.includes("geolocate")) {
-        //TODO: add better handling
-        document.querySelector("#geolocate-checkbox")?.setAttribute(
+      if (existingSettings && existingSettings.includes("no-geolocate")) {
+        document.querySelector("#no-geolocate-checkbox")?.setAttribute(
           "checked",
           "true",
         );
@@ -228,12 +251,16 @@ if (settingsDialog) {
 function maybeGetGeo() {
   const allowedSettings = window.localStorage.getItem("allowedSettings");
 
-  if (allowedSettings && allowedSettings.includes("geolocate")) {
-    const options = {
-      enableHighAccuracy: true,
-      timeout: 5000,
-      maximumAge: 0,
-    };
+  // Use opt-out: show distance info unless user has explicitly disabled geolocation
+  if (allowedSettings && allowedSettings.includes("no-geolocate")) {
+    return;
+  }
+
+  const options = {
+    enableHighAccuracy: true,
+    timeout: 5000,
+    maximumAge: 0,
+  };
 
     async function success(pos) {
       const crd = pos.coords;
@@ -272,7 +299,6 @@ function maybeGetGeo() {
     }
 
     navigator.geolocation.getCurrentPosition(success, error, options);
-  }
 }
 
 maybeGetGeo();
@@ -281,8 +307,9 @@ maybeGetGeo();
 function redirectToClosestFerry() {
   const allowedSettings = window.localStorage.getItem("allowedSettings");
   
-  // Only redirect if geolocation is enabled
-  if (!allowedSettings || !allowedSettings.includes("geolocate")) {
+  // Use opt-out: redirect unless user has explicitly disabled geolocation
+  if (allowedSettings && allowedSettings.includes("no-geolocate")) {
+    console.log("Geolocation disabled by user");
     return;
   }
 

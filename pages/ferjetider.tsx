@@ -40,17 +40,17 @@ export function SettingsDialog() {
       <form>
         <p>
           <label>
-            Use geolocation
+            Disable geolocation
             <br />
             <small style={{ fontSize: "0.7em", opacity: 0.8 }}>
-              When enabled, ferry times will default to the closest ferry stop based on your location
+              By default, ferry times will automatically select the closest ferry stop based on your location. Check this to disable.
             </small>
           </label>
           <input
             type="checkbox"
-            id="geolocate-checkbox"
-            name="geolocate"
-            value="geolocate"
+            id="no-geolocate-checkbox"
+            name="no-geolocate"
+            value="no-geolocate"
           />
         </p>
         <div>

@@ -16,7 +16,7 @@ try {
 import "./emojistuff.ts";
 import { Ferjetider } from "./pages/ferjetider.tsx";
 import { Ferjeliste } from "./pages/ferjeliste.tsx";
-import { getFerryDistance } from "./ferryFetcher.ts";
+import { getFerryDistance, ferryLines, places } from "./ferryFetcher.ts";
 
 const headers = new Headers();
 headers.append("Content-Type", "text/html; charset=UTF-8");
@@ -116,6 +116,19 @@ addRoute(
         return new Response();
     }
 )
+
+addRoute("GET", "/api/ferry-config", () => {
+  const headers = new Headers();
+  headers.append("Content-Type", "application/json; charset=UTF-8");
+  
+  return new Response(
+    JSON.stringify({
+      ferryLines,
+      places,
+    }),
+    { headers }
+  );
+});
 
 addRoute("GET", "/demo", async () => {
   const file = await Deno.readTextFile("./demo_geolocation.html");
