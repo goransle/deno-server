@@ -76,6 +76,10 @@
       return { key, distance: roadDistance };
     });
     const distances = await Promise.all(distancePromises);
+    console.log("Road distances to ferry stops:");
+    distances.forEach(({ key, distance }) => {
+      console.log(`  ${key}: ${distance !== null ? distance.toFixed(2) + " km" : "N/A"}`);
+    });
     for (const { key, distance } of distances) {
       if (distance !== null && distance < minDistance) {
         minDistance = distance;
@@ -97,6 +101,7 @@
         }
       }
     }
+    console.log(`Closest ferry stop by road: ${closestStop} (${minDistance.toFixed(2)} km)`);
     return closestStop;
   }
   async function getClosestFerryRoute(userLat, userLon) {
@@ -109,11 +114,14 @@
     const closestStop = await findClosestFerryStop(userLat, userLon);
     if (!closestStop)
       return null;
+    console.log(`Looking for ferry routes containing: ${closestStop}`);
     for (const [from, to] of ferryLines) {
       if (from === closestStop) {
+        console.log(`Found route: ${from} \u2192 ${to}`);
         return { from, to };
       }
       if (to === closestStop) {
+        console.log(`Found route (reversed): ${to} \u2192 ${from}`);
         return { from: to, to: from };
       }
     }

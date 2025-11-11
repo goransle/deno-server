@@ -48,6 +48,12 @@ async function findClosestFerryStop(userLat: number, userLon: number): Promise<s
 
   const distances = await Promise.all(distancePromises);
 
+  // Log all road distances for debugging
+  console.log("Road distances to ferry stops:");
+  distances.forEach(({ key, distance }) => {
+    console.log(`  ${key}: ${distance !== null ? distance.toFixed(2) + ' km' : 'N/A'}`);
+  });
+
   // Find the stop with minimum road distance
   for (const { key, distance } of distances) {
     if (distance !== null && distance < minDistance) {
@@ -73,6 +79,7 @@ async function findClosestFerryStop(userLat: number, userLon: number): Promise<s
     }
   }
 
+  console.log(`Closest ferry stop by road: ${closestStop} (${minDistance.toFixed(2)} km)`);
   return closestStop;
 }
 
@@ -91,12 +98,16 @@ async function getClosestFerryRoute(userLat: number, userLon: number): Promise<{
   
   if (!closestStop) return null;
 
+  console.log(`Looking for ferry routes containing: ${closestStop}`);
+
   // Find a ferry line that includes the closest stop
   for (const [from, to] of ferryLines) {
     if (from === closestStop) {
+      console.log(`Found route: ${from} → ${to}`);
       return { from, to };
     }
     if (to === closestStop) {
+      console.log(`Found route (reversed): ${to} → ${from}`);
       return { from: to, to: from }; // Return with closest as "from"
     }
   }
