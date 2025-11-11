@@ -5,7 +5,7 @@ import { fetchFerriesCached, places } from "../ferryFetcher.ts";
 //     window.location.reload();
 //   });
 
-// Haversine distance formula to calculate distance between two coordinates
+// Haversine distance formula to calculate distance between two coordinates (fallback)
 function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
   const R = 6371; // Radius of the Earth in kilometers
   const dLat = (lat2 - lat1) * Math.PI / 180;
@@ -18,29 +18,66 @@ function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: numbe
   return R * c; // Distance in kilometers
 }
 
-// Find the closest ferry stop to a given location
-function findClosestFerryStop(userLat: number, userLon: number): string | null {
+// Get actual road distance from user location to a ferry stop
+async function getRoadDistance(ferryStop: string, userLon: number, userLat: number): Promise<number | null> {
+  try {
+    const response = await fetch(`/ferje-directions/${ferryStop}/${userLon},${userLat}`);
+    if (!response.ok) return null;
+    
+    const data = await response.json();
+    if (data && data.routes && data.routes[0]) {
+      // Distance is in meters, convert to kilometers
+      return parseFloat(data.routes[0].summary.distance) / 1000;
+    }
+  } catch (error) {
+    console.warn(`Failed to get road distance for ${ferryStop}:`, error);
+  }
+  return null;
+}
+
+// Find the closest ferry stop to a given location using road distance
+async function findClosestFerryStop(userLat: number, userLon: number): Promise<string | null> {
   let closestStop: string | null = null;
   let minDistance = Infinity;
 
-  for (const [key, place] of Object.entries(places)) {
-    const distance = calculateDistance(
-      userLat, 
-      userLon, 
-      place.coordinates.latitude, 
-      place.coordinates.longitude
-    );
-    if (distance < minDistance) {
+  // Try to get road distances for all ferry stops
+  const distancePromises = Object.keys(places).map(async (key) => {
+    const roadDistance = await getRoadDistance(key, userLon, userLat);
+    return { key, distance: roadDistance };
+  });
+
+  const distances = await Promise.all(distancePromises);
+
+  // Find the stop with minimum road distance
+  for (const { key, distance } of distances) {
+    if (distance !== null && distance < minDistance) {
       minDistance = distance;
       closestStop = key;
+    }
+  }
+
+  // If no road distances were available, fall back to Haversine distance
+  if (closestStop === null) {
+    console.log("Falling back to Haversine distance calculation");
+    for (const [key, place] of Object.entries(places)) {
+      const distance = calculateDistance(
+        userLat, 
+        userLon, 
+        place.coordinates.latitude, 
+        place.coordinates.longitude
+      );
+      if (distance < minDistance) {
+        minDistance = distance;
+        closestStop = key;
+      }
     }
   }
 
   return closestStop;
 }
 
-// Get the closest ferry route based on user location
-function getClosestFerryRoute(userLat: number, userLon: number): { from: string, to: string } | null {
+// Get the closest ferry route based on user location using road distance
+async function getClosestFerryRoute(userLat: number, userLon: number): Promise<{ from: string, to: string } | null> {
   // Define ferry lines (pairs of stops)
   const ferryLines = [
     ["vangsnes", "hella"],
@@ -49,8 +86,8 @@ function getClosestFerryRoute(userLat: number, userLon: number): { from: string,
     ["fodnes", "mannheller"],
   ];
 
-  // Find the closest stop
-  const closestStop = findClosestFerryStop(userLat, userLon);
+  // Find the closest stop by road
+  const closestStop = await findClosestFerryStop(userLat, userLon);
   
   if (!closestStop) return null;
 
@@ -259,11 +296,11 @@ function redirectToClosestFerry() {
     maximumAge: 0,
   };
 
-  function success(pos: GeolocationPosition) {
+  async function success(pos: GeolocationPosition) {
     const crd = pos.coords;
     console.log("Finding closest ferry based on location:", crd.latitude, crd.longitude);
     
-    const closestRoute = getClosestFerryRoute(crd.latitude, crd.longitude);
+    const closestRoute = await getClosestFerryRoute(crd.latitude, crd.longitude);
     
     if (closestRoute) {
       console.log(`Redirecting to closest ferry route: ${closestRoute.from} to ${closestRoute.to}`);

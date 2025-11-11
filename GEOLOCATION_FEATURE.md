@@ -37,7 +37,17 @@ When geolocation is enabled in settings:
 ## Technical Details
 
 ### Distance Calculation
-Uses the Haversine formula to calculate great-circle distance between two points on Earth:
+The app uses **actual road distance** by calling the OpenRouteService API via the `/ferje-directions` endpoint:
+
+```javascript
+async function getRoadDistance(ferryStop, userLon, userLat) {
+  const response = await fetch(`/ferje-directions/${ferryStop}/${userLon},${userLat}`);
+  const data = await response.json();
+  return parseFloat(data.routes[0].summary.distance) / 1000; // Convert meters to km
+}
+```
+
+If the API is unavailable, it falls back to the Haversine formula for straight-line distance:
 ```javascript
 function calculateDistance(lat1, lon1, lat2, lon2) {
   const R = 6371; // Earth's radius in kilometers
@@ -52,11 +62,16 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
 }
 ```
 
+**Why road distance matters:** In areas with fjords and mountains, straight-line distance can be misleading. For example, Vangsnes may be farther "as the crow flies" but closer by road than Hella due to terrain.
+
 ### Route Selection Algorithm
-1. Find the closest ferry stop to user's location
-2. Search through available ferry routes
-3. Select the route where the closest stop is the "from" location
-4. If closest stop is a "to" location, swap the direction
+1. Get user's current location via geolocation API
+2. Query actual road distance to each ferry stop using OpenRouteService API
+3. Select the ferry stop with the shortest road distance
+4. Find a ferry route that includes that stop
+5. If the closest stop is normally a "to" location, swap direction to make it the "from"
+
+This ensures users are directed to the ferry that's actually easiest to reach by road, not just closest in a straight line.
 
 ### Storage
 - **localStorage**: Stores user preference for geolocation (`allowedSettings`)
