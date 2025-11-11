@@ -1,28 +1,20 @@
 import { h } from "https://esm.sh/preact@10.25.3";
-
-const ferryLines = [
-  "vangsnes-hella",
-  "hella-dragsvik",
-  "vangsnes-dragsvik",
-  "fodnes-mannheller",
-];
+import { ferryLines } from "../ferryFetcher.ts";
 
 export function Ferjeliste() {
   return (
     <ul>
       {ferryLines.map(
-        (line) => (
-          <li>
-            <a href={"/ferjetider/" + line}>
-              {line.split("-")
-                .map((place) =>
-                  place
-                    .charAt(0)
-                    .toUpperCase() + place.slice(1)
-                ).join(" - ")}
-            </a>
-          </li>
-        ),
+        ([from, to]) => {
+          const line = `${from}-${to}`;
+          return (
+            <li key={line}>
+              <a href={"/ferjetider/" + line}>
+                {from.charAt(0).toUpperCase() + from.slice(1)} - {to.charAt(0).toUpperCase() + to.slice(1)}
+              </a>
+            </li>
+          );
+        },
       )}
     </ul>
   );

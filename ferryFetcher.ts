@@ -7,6 +7,8 @@ export type Place = {
   };
 };
 
+export type FerryLine = [string, string];
+
 export type getNextFerriesObject = {
   from: string;
   to: string;
@@ -172,6 +174,13 @@ export const places: Record<string, Place> = {
     "place": "NSR:StopPlace:58180",
   },
 };
+
+export const ferryLines: FerryLine[] = [
+  ["vangsnes", "hella"],
+  ["hella", "dragsvik"],
+  ["vangsnes", "dragsvik"],
+  ["fodnes", "mannheller"],
+];
 
 const today = new Date();
 
