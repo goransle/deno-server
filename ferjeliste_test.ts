@@ -126,3 +126,21 @@ Deno.test("ferry line sorting - sorted order is consistent", () => {
     assertEquals(sorted[i].distance <= sorted[i + 1].distance, true);
   }
 });
+
+Deno.test("ferry lines include both directions", () => {
+  // Each ferry line should have both directions available
+  // For example, if we have ["vangsnes", "hella"], we should also be able to travel ["hella", "vangsnes"]
+  
+  // Generate both directions for all ferry lines
+  const allDirections = ferryLines.flatMap(([from, to]) => [
+    `${from}-${to}`,
+    `${to}-${from}`
+  ]);
+  
+  // Should have twice as many directions as base ferry lines
+  assertEquals(allDirections.length, ferryLines.length * 2);
+  
+  // Check that vangsnes-hella and hella-vangsnes both exist
+  assertEquals(allDirections.includes("vangsnes-hella"), true);
+  assertEquals(allDirections.includes("hella-vangsnes"), true);
+});

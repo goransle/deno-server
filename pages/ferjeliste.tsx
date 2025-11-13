@@ -42,14 +42,25 @@ function getMinDistanceToLine(userLat: number, userLon: number, from: string, to
 }
 
 export function Ferjeliste(props: FerjelisteProps) {
-  let linesToDisplay = ferryLines.map(([from, to]) => ({
-    from,
-    to,
-    line: `${from}-${to}`,
-    distance: props.userLat && props.userLon 
-      ? getMinDistanceToLine(props.userLat, props.userLon, from, to)
-      : null
-  }));
+  // Generate both directions for each ferry line
+  let linesToDisplay = ferryLines.flatMap(([from, to]) => [
+    {
+      from,
+      to,
+      line: `${from}-${to}`,
+      distance: props.userLat && props.userLon 
+        ? getMinDistanceToLine(props.userLat, props.userLon, from, to)
+        : null
+    },
+    {
+      from: to,
+      to: from,
+      line: `${to}-${from}`,
+      distance: props.userLat && props.userLon 
+        ? getMinDistanceToLine(props.userLat, props.userLon, to, from)
+        : null
+    }
+  ]);
 
   // Sort by distance if coordinates are available
   if (props.userLat && props.userLon) {
