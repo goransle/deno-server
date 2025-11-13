@@ -46,7 +46,7 @@ addRoute("GET", "/ferjeliste", async (req) => {
     : {};
   
   const response = "<!DOCTYPE html>" + render(
-    await Ferjeliste(props),
+    Ferjeliste(props),
   );
 
   return new Response(
