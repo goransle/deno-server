@@ -292,6 +292,9 @@ function maybeGetGeo() {
           }
         }
       }
+      
+      // Update ferry list with user coordinates
+      updateFerryListWithLocation(crd.latitude, crd.longitude);
     }
 
     function error(err) {
@@ -299,6 +302,21 @@ function maybeGetGeo() {
     }
 
     navigator.geolocation.getCurrentPosition(success, error, options);
+}
+
+// Update the ferry list with user location to show distances
+function updateFerryListWithLocation(lat: number, lon: number) {
+  const ferjelisteContainer = document.querySelector("#ferjeliste-container");
+  if (ferjelisteContainer) {
+    // Update the htmx endpoint to include coordinates
+    ferjelisteContainer.setAttribute("hx-get", `/ferjeliste?lat=${lat}&lon=${lon}`);
+    // Trigger htmx to reload with new parameters
+    // @ts-ignore - htmx is loaded globally
+    if (typeof htmx !== "undefined") {
+      // @ts-ignore
+      htmx.trigger(ferjelisteContainer, "load");
+    }
+  }
 }
 
 maybeGetGeo();

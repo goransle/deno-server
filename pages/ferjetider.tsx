@@ -325,7 +325,7 @@ main {
         <aside>
           <nav>
             <h2>More crossings</h2>
-            <div hx-get="/ferjeliste" hx-trigger="load"></div>
+            <div id="ferjeliste-container" hx-get="/ferjeliste" hx-trigger="load"></div>
           </nav>
           <h2>Useful resources</h2>
           <ul>
