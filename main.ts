@@ -36,9 +36,17 @@ addRoute("GET", "/", async () => {
   );
 });
 
-addRoute("GET", "/ferjeliste", async () => {
+addRoute("GET", "/ferjeliste", async (req) => {
+  const url = new URL(req.url);
+  const userLat = url.searchParams.get("lat");
+  const userLon = url.searchParams.get("lon");
+  
+  const props = userLat && userLon 
+    ? { userLat: parseFloat(userLat), userLon: parseFloat(userLon) }
+    : {};
+  
   const response = "<!DOCTYPE html>" + render(
-    await Ferjeliste({}),
+    Ferjeliste(props),
   );
 
   return new Response(
