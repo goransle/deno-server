@@ -1,22 +1,21 @@
 import { h } from "https://esm.sh/preact@10.25.3";
 
-import {
-  Driftsmelding,
-  fetchFerriesCached,
-  places,
-} from "../ferryFetcher.ts";
+import { fetchFerriesCached, places } from "../ferryFetcher.ts";
+import type { Driftsmelding } from "../ferryFetcher.ts";
+import { Ferjeliste } from "./ferjeliste.tsx";
 
 export type FerjetiderProps = {
   from?: string;
   to?: string;
+  userLat?: number;
+  userLon?: number;
 };
 
 const cams: Record<string, string> = {
-  "vangsnes": "https://webkamera.atlas.vegvesen.no/public/kamera?id=1429036_1",
-  "hella": "https://webkamera.atlas.vegvesen.no/public/kamera?id=1429039_1",
-  "dragsvik": "https://webkamera.atlas.vegvesen.no/public/kamera?id=1429040_1",
-  "mannheller":
-    "https://webkamera.atlas.vegvesen.no/public/kamera?id=1429028_1",
+  vangsnes: "https://webkamera.atlas.vegvesen.no/public/kamera?id=1429036_1",
+  hella: "https://webkamera.atlas.vegvesen.no/public/kamera?id=1429039_1",
+  dragsvik: "https://webkamera.atlas.vegvesen.no/public/kamera?id=1429040_1",
+  mannheller: "https://webkamera.atlas.vegvesen.no/public/kamera?id=1429028_1",
 };
 
 export function getPlaceName(place: string): string | null {
@@ -34,34 +33,6 @@ export function formatTimestamp(timestamp: string) {
   ).replace(":00", "");
 }
 
-export function SettingsDialog() {
-  return (
-    <dialog id="settingsDialog">
-      <form>
-        <p>
-          <label>
-            Disable geolocation
-            <br />
-            <small style={{ fontSize: "0.7em", opacity: 0.8 }}>
-              By default, ferry times will automatically select the closest ferry stop based on your location. Check this to disable.
-            </small>
-          </label>
-          <input
-            type="checkbox"
-            id="no-geolocate-checkbox"
-            name="no-geolocate"
-            value="no-geolocate"
-          />
-        </p>
-        <div>
-          <button value="cancel" formmethod="dialog">Cancel</button>
-          <button id="settingsSave" value="default">Save</button>
-        </div>
-      </form>
-    </dialog>
-  );
-}
-
 type FerryTrip = {
   startTime: string;
   notices: { text?: string }[];
@@ -72,39 +43,81 @@ export type FerrySectionProps = {
   to: string;
   ferries: FerryTrip[];
   driftsmeldinger: Driftsmelding[];
+  userLat?: number;
+  userLon?: number;
 };
 
 function getLink(from: string, to: string) {
-    const fromPlace = places[from];
-    const toPlace = places[to];
+  const fromPlace = places[from];
+  const toPlace = places[to];
 
-    return `https://entur.no/reiseresultater?transportModes=car_ferry&date=${Date.now()}tripMode=oneway&walkSpeed=1.3&minimumTransferTime=120&timepickerMode=departAfter&startId=${fromPlace.place}&startLabel=${fromPlace.name}&startLat=${fromPlace.coordinates.latitude}&startLon=${fromPlace.coordinates.longitude}&stopId=${toPlace.place}&stopLabel=${toPlace.name}&stopLat=${toPlace.coordinates.latitude}&stopLon=${toPlace.coordinates.longitude}`;
+  return `https://entur.no/reiseresultater?transportModes=car_ferry&date=${Date.now()}&tripMode=oneway&walkSpeed=1.3&minimumTransferTime=120&timepickerMode=departAfter&startId=${fromPlace.place}&startLabel=${fromPlace.name}&startLat=${fromPlace.coordinates.latitude}&startLon=${fromPlace.coordinates.longitude}&stopId=${toPlace.place}&stopLabel=${toPlace.name}&stopLat=${toPlace.coordinates.latitude}&stopLon=${toPlace.coordinates.longitude}`;
+}
+
+function hasUserCoordinates(userLat?: number, userLon?: number) {
+  return Number.isFinite(userLat) && Number.isFinite(userLon);
+}
+
+function getRouteHref(
+  from: string,
+  to: string,
+  userLat?: number,
+  userLon?: number,
+) {
+  const url = new URL(`/ferjetider/${from}-${to}`, "https://ferjetider.local");
+
+  if (hasUserCoordinates(userLat, userLon)) {
+    url.searchParams.set("lat", String(userLat));
+    url.searchParams.set("lon", String(userLon));
+  }
+
+  return `${url.pathname}${url.search}`;
+}
+
+function resolveRoute(
+  from?: string,
+  to?: string,
+): { from: string; to: string } {
+  const fallback = {
+    from: "vangsnes",
+    to: "hella",
+  };
+
+  if (!from || !to) {
+    return fallback;
+  }
+
+  if (!places[from] || !places[to]) {
+    return fallback;
+  }
+
+  return { from, to };
 }
 
 export function FerrySection(props: FerrySectionProps) {
   return (
     <section>
       <h2>
-        <span className={"ferry-from"} data-original={props.from}>
+        <span className="ferry-from">
           {getPlaceName(props.from)}
         </span>{" "}
         to{" "}
-        <span className={"ferry-to"} data-original={props.to}>
+        <span className="ferry-to">
           {getPlaceName(props.to)}
         </span>
-        <span>
-          <button
-            hx-swap="outerHTML"
-            hx-push-url="true"
-            hx-indicator="#htmx-indicator"
-            hx-get={`/ferjetider/${props.to}-${props.from}`}
-            hx-target="body"
-          >
-            🔀
-          </button>
-        </span>
+        <a
+          href={getRouteHref(
+            props.to,
+            props.from,
+            props.userLat,
+            props.userLon,
+          )}
+          className="swap-link"
+        >
+          Swap
+        </a>
       </h2>
-      <p className="info"></p>
+      <p className="info" />
       <ol style={{ listStyle: "square" }}>
         {(props.ferries ?? []).map(({ startTime, notices }, index) => {
           const noticeText = (notices ?? [])
@@ -113,7 +126,7 @@ export function FerrySection(props: FerrySectionProps) {
             .join(" · ");
 
           return (
-            <li key={`${startTime}-${index}`}>
+            <li key={`${startTime}-${noticeText || index}`}>
               {formatTimestamp(startTime)}
               {noticeText && (
                 <span className="notices">
@@ -160,51 +173,38 @@ export function FerrySection(props: FerrySectionProps) {
             alt=""
             style={{ maxWidth: "100vw" }}
             src={cams[props.from]}
-          >
-          </img>
+          />
         </details>
       )}
+      <p>
+        <a href={getLink(props.from, props.to)}>Open in Entur</a>
+      </p>
     </section>
   );
 }
 
 export async function Ferjetider(props: FerjetiderProps) {
-  const arr = (props.from && props.to)
-    ? [
-      {
-        from: props.from,
-        to: props.to,
-      },
-    ]
-    : [
-      {
-        from: "vangsnes",
-        to: "hella",
-      },
-    ];
-
-  const [ferryData] = await Promise.all(arr.map(async (fromTo) => {
-    return {
-      ...fromTo,
-      ...(await fetchFerriesCached(fromTo).catch(() => ({
-        ferries: [],
-        driftsmeldinger: [],
-      }))),
-    };
-  }));
-
-  console.log(ferryData);
+  const route = resolveRoute(props.from, props.to);
+  const ferryData = {
+    ...route,
+    ...(await fetchFerriesCached(route).catch(() => ({
+      ferries: [],
+      driftsmeldinger: [],
+    }))),
+  };
 
   const ferries: FerryTrip[] = ferryData.ferries ?? [];
   const driftsmeldinger = ferryData.driftsmeldinger ?? [];
+  const hasUserLocation = hasUserCoordinates(props.userLat, props.userLon);
 
   return (
     <html lang="en">
       <head>
-        <title>{"Ferjetider, hej, hej, ferjetider"}</title>
+        <title>Ferjetider, hej, hej, ferjetider</title>
         <meta charset="UTF-8" />
 
         <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <meta httpEquiv="refresh" content="120" />
 
         <meta name="description" content="" />
         <link
@@ -214,21 +214,15 @@ export async function Ferjetider(props: FerjetiderProps) {
 
         <style>
           {`
-@media (prefers-color-scheme: dark) {
-    body {
-        background-color: black;
-        color: white;
-    }
-}
 body {
     font-family: sans-serif;
-    font-size: 2em;
+    font-size: 1.4rem;
 }
 main {
     margin: 0 auto;
     max-width: 30em;
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: column;
     gap: 1em;
 }
 
@@ -270,91 +264,139 @@ main {
     color: inherit;
 }
 
-#action-links {
+#action-links, .page-actions {
     display: flex;
-    gap: 1em;
-    a {
-        font-size: 0.8em;
-    }
+    flex-wrap: wrap;
+    gap: .7em;
+}
 
-    button {
-        button-style: none;
-    }
+.route-picker {
+    display: flex;
+    gap: .5em;
+    flex-wrap: wrap;
+}
+
+.route-picker label {
+    display: inline-flex;
+    flex-direction: column;
+    font-size: .7em;
+}
+
+.route-picker select,
+.route-picker button,
+.page-actions button,
+.page-actions a,
+.swap-link {
+    font-size: .7em;
+}
+
+.status-message {
+    font-size: .7em;
+}
+
+.status-frame {
+    border: 0;
+    width: 100%;
+}
+
+.swap-link {
+    margin-left: .5em;
 }
 `}
         </style>
-        <script src="/scripts/htmx.js"></script>
       </head>
-      <body
-        hx-trigger="load delay:2m"
-        hx-get={`/ferjetider/${ferryData.from}-${ferryData.to}`}
-      >
-
-      <div hx-get="/status-messages/index.html"
-          hx-trigger="load"
-          hx-swap="innerHTML"
-          >
-       </div>
-      <div hx-get={`/status-messages/${ferryData.from}-${ferryData.to}.html`}
-          hx-trigger="load"
-          hx-swap="innerHTML"
-          >
-       </div>
-       <div id="htmx-indicator" class="htmx-indicator">Loading...</div>
-        <h1 className={"sr-only"}>Upcoming ferjetider</h1>
+      <body>
+        <section className="status-message">
+          <iframe
+            className="status-frame"
+            src="/status-messages/index.html"
+            title="General status messages"
+            sandbox=""
+          />
+        </section>
+        <section className="status-message">
+          <iframe
+            className="status-frame"
+            src={`/status-messages/${ferryData.from}-${ferryData.to}.html`}
+            title="Route-specific status messages"
+            sandbox=""
+          />
+        </section>
+        <h1 className="sr-only">Upcoming ferjetider</h1>
         <main>
+          <section className="page-actions">
+            <form className="route-picker" method="get" action="/ferjetider">
+              <label>
+                From
+                <select name="from" value={ferryData.from}>
+                  {Object.entries(places).map(([key, place]) => (
+                    <option key={key} value={key}>{place.name}</option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                To
+                <select name="to" value={ferryData.to}>
+                  {Object.entries(places).map(([key, place]) => (
+                    <option key={key} value={key}>{place.name}</option>
+                  ))}
+                </select>
+              </label>
+              <button type="submit">Show route</button>
+              {hasUserLocation && (
+                <input type="hidden" name="lat" value={String(props.userLat)} />
+              )}
+              {hasUserLocation && (
+                <input type="hidden" name="lon" value={String(props.userLon)} />
+              )}
+            </form>
+            <button id="geo-find-nearest" type="button">
+              Find nearest crossing
+            </button>
+            <label>
+              <input id="geo-auto-toggle" type="checkbox" />
+              Auto-find nearest route
+            </label>
+          </section>
+
           <FerrySection
             from={ferryData.from}
             to={ferryData.to}
             ferries={ferries}
             driftsmeldinger={driftsmeldinger}
+            userLat={props.userLat}
+            userLon={props.userLon}
           />
           <section id="action-links">
-              <button
-                hx-swap="outerHTML"
-                hx-push-url="true"
-                hx-get={`/ferjetider/${ferryData.to}-${ferryData.from}`}
-                hx-target="body"
-                hx-indicator="#htmx-indicator"
-              >
-                Swap places 🔄
-              </button>
-              <a href={getLink(ferryData.from, ferryData.to)}>Open in Entur</a>
+            <a
+              href={getRouteHref(
+                ferryData.to,
+                ferryData.from,
+                props.userLat,
+                props.userLon,
+              )}
+            >
+              Swap places
+            </a>
+            <a href={getLink(ferryData.from, ferryData.to)}>Open in Entur</a>
           </section>
         </main>
         <aside>
           <nav>
             <h2>More crossings</h2>
-            <div id="ferjeliste-container" hx-get="/ferjeliste" hx-trigger="load"></div>
+            <Ferjeliste userLat={props.userLat} userLon={props.userLon} />
           </nav>
           <h2>Useful resources</h2>
           <ul>
-            <li><a href="https://www.vikjavev.no/">Vikjaveven</a></li>
-            <li><a href="https://www.vegvesen.no/trafikk">Vegvesen trafikk</a></li>
+            <li>
+              <a href="https://www.vikjavev.no/">Vikjaveven</a>
+            </li>
+            <li>
+              <a href="https://www.vegvesen.no/trafikk">Vegvesen trafikk</a>
+            </li>
           </ul>
         </aside>
-        <button id="settings-toggle">🛠️</button>
-        <SettingsDialog />
-        <dialog id="placeDialog">
-          <form>
-            <p>
-              <label>
-                Select a different place
-                <select>
-                  {Object.entries(places)
-                    .map(([key, place]) => {
-                      return <option value={key}>{place.name}</option>;
-                    })}
-                </select>
-              </label>
-            </p>
-            <div>
-              <button value="cancel" formmethod="dialog">Cancel</button>
-              <button id="confirmBtn" value="default">Submit</button>
-            </div>
-          </form>
-        </dialog>
-        <script src="/scripts/ferje-client-script.js"></script>
+        <script src="/scripts/ferje-client-script.js" defer />
       </body>
     </html>
   );
