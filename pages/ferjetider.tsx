@@ -225,6 +225,7 @@ export async function Ferjetider(props: FerjetiderProps) {
     --border-color: #dee2e6;
     --accent-primary: #0d6efd;
     --accent-hover: #0b5ed7;
+    --button-text-color: #ffffff;
     --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
     --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
     --ferry-from-color: #0d6efd;
@@ -247,6 +248,7 @@ export async function Ferjetider(props: FerjetiderProps) {
         --border-color: #495057;
         --accent-primary: #4dabf7;
         --accent-hover: #74c0fc;
+        --button-text-color: #1a1a1a;
         --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
         --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4);
         --ferry-from-color: #4dabf7;
@@ -439,7 +441,7 @@ button {
 button[type="submit"],
 button[type="button"] {
     background-color: var(--accent-primary);
-    color: white;
+    color: var(--button-text-color);
     border-color: var(--accent-primary);
 }
 
@@ -452,10 +454,14 @@ button[type="button"]:hover {
     transform: translateY(-1px);
 }
 
-.route-picker select:hover,
+.route-picker select:hover {
+    border-color: var(--accent-primary);
+}
+
 .route-picker select:focus {
     border-color: var(--accent-primary);
-    outline: none;
+    outline: 2px solid var(--accent-primary);
+    outline-offset: 2px;
 }
 
 a {
