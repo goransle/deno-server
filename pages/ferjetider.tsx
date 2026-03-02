@@ -512,10 +512,21 @@ a:hover {
     margin-bottom: 0.5rem;
 }
 
+.status-message:empty {
+    display: none;
+    margin: 0;
+}
+
 .status-frame {
     border: 0;
     width: 100%;
+    min-height: 0;
+    height: auto;
     background-color: transparent;
+}
+
+.status-frame:empty {
+    display: none;
 }
 
 details {
