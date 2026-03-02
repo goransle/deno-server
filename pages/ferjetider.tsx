@@ -214,16 +214,96 @@ export async function Ferjetider(props: FerjetiderProps) {
 
         <style>
           {`
-body {
-    font-family: sans-serif;
-    font-size: 1.4rem;
+:root {
+    /* Light mode colors */
+    --bg-primary: #ffffff;
+    --bg-secondary: #f8f9fa;
+    --bg-tertiary: #e9ecef;
+    --text-primary: #212529;
+    --text-secondary: #495057;
+    --text-muted: #6c757d;
+    --border-color: #dee2e6;
+    --accent-primary: #0d6efd;
+    --accent-hover: #0b5ed7;
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --ferry-from-color: #0d6efd;
+    --ferry-to-color: #198754;
+    --notice-bg: #fff3cd;
+    --notice-border: #ffc107;
+    --warning-bg: #f8d7da;
+    --warning-border: #dc3545;
 }
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        /* Dark mode colors */
+        --bg-primary: #1a1a1a;
+        --bg-secondary: #2d2d2d;
+        --bg-tertiary: #3a3a3a;
+        --text-primary: #e9ecef;
+        --text-secondary: #ced4da;
+        --text-muted: #adb5bd;
+        --border-color: #495057;
+        --accent-primary: #4dabf7;
+        --accent-hover: #74c0fc;
+        --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+        --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4);
+        --ferry-from-color: #4dabf7;
+        --ferry-to-color: #51cf66;
+        --notice-bg: #3d3000;
+        --notice-border: #ffc107;
+        --warning-bg: #4a1c1c;
+        --warning-border: #dc3545;
+    }
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    margin: 0;
+    padding: 1rem;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
 main {
     margin: 0 auto;
-    max-width: 30em;
+    max-width: 50rem;
     display: flex;
     flex-direction: column;
-    gap: 1em;
+    gap: 1.5rem;
+}
+
+h1, h2, h3 {
+    margin: 0;
+    line-height: 1.2;
+}
+
+h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+}
+
+h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+section {
+    background-color: var(--bg-secondary);
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    box-shadow: var(--shadow-sm);
+    transition: background-color 0.3s ease;
 }
 
 .sr-only { 
@@ -237,70 +317,275 @@ main {
     border: 0;
 }
 
+.ferry-from {
+    color: var(--ferry-from-color);
+    font-weight: 600;
+}
+
+.ferry-to {
+    color: var(--ferry-to-color);
+    font-weight: 600;
+}
+
+ol {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+ol li {
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+    background-color: var(--bg-primary);
+    border-radius: 0.5rem;
+    border-left: 3px solid var(--accent-primary);
+    font-size: 1.1rem;
+    font-weight: 500;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+ol li:hover {
+    transform: translateX(4px);
+    box-shadow: var(--shadow-md);
+}
+
 .notices {
-    font-size: .7em;
-    margin: auto .5em;
+    display: block;
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    color: var(--text-secondary);
+    font-weight: 400;
 }
 
 .driftsmeldinger {
-    font-size: .6em;
-    margin-top: .5em;
-    padding: .5em;
-    border-left: .2em solid currentColor;
+    font-size: 0.9rem;
+    margin-top: 1rem;
+    padding: 1rem;
+    background-color: var(--warning-bg);
+    border-left: 4px solid var(--warning-border);
+    border-radius: 0.5rem;
+}
+
+.driftsmeldinger h3 {
+    margin-top: 0;
+    color: var(--warning-border);
 }
 
 .driftsmeldinger ul {
     margin: 0;
-    padding-left: 1em;
+    padding-left: 1.5rem;
+}
+
+.driftsmeldinger li {
+    margin-bottom: 0.5rem;
 }
 
 .driftsmeldinger-description,
 .driftsmeldinger-links {
     display: block;
-    margin-top: .2em;
+    margin-top: 0.25rem;
+    font-size: 0.9rem;
 }
 
 .driftsmeldinger a {
-    color: inherit;
+    color: var(--accent-primary);
+    text-decoration: underline;
 }
 
 #action-links, .page-actions {
     display: flex;
     flex-wrap: wrap;
-    gap: .7em;
+    gap: 0.75rem;
+    align-items: center;
 }
 
 .route-picker {
     display: flex;
-    gap: .5em;
+    gap: 0.75rem;
     flex-wrap: wrap;
+    align-items: flex-end;
 }
 
 .route-picker label {
     display: inline-flex;
     flex-direction: column;
-    font-size: .7em;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-secondary);
 }
 
 .route-picker select,
 .route-picker button,
 .page-actions button,
+button {
+    padding: 0.5rem 1rem;
+    font-size: 0.95rem;
+    font-weight: 500;
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    background-color: var(--bg-tertiary);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.1s ease;
+}
+
+.route-picker select {
+    background-color: var(--bg-primary);
+    min-width: 150px;
+}
+
+.route-picker button,
+.page-actions button,
+button[type="submit"],
+button[type="button"] {
+    background-color: var(--accent-primary);
+    color: white;
+    border-color: var(--accent-primary);
+}
+
+.route-picker button:hover,
+.page-actions button:hover,
+button[type="submit"]:hover,
+button[type="button"]:hover {
+    background-color: var(--accent-hover);
+    border-color: var(--accent-hover);
+    transform: translateY(-1px);
+}
+
+.route-picker select:hover,
+.route-picker select:focus {
+    border-color: var(--accent-primary);
+    outline: none;
+}
+
+a {
+    color: var(--accent-primary);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+a:hover {
+    color: var(--accent-hover);
+    text-decoration: underline;
+}
+
 .page-actions a,
+#action-links a {
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    background-color: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.page-actions a:hover,
+#action-links a:hover {
+    background-color: var(--bg-primary);
+    transform: translateY(-1px);
+    text-decoration: none;
+}
+
 .swap-link {
-    font-size: .7em;
+    margin-left: 0.75rem;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.85rem;
+    background-color: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: 0.375rem;
+    color: var(--text-primary);
+    text-decoration: none;
+}
+
+.swap-link:hover {
+    background-color: var(--bg-primary);
+    text-decoration: none;
 }
 
 .status-message {
-    font-size: .7em;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
 }
 
 .status-frame {
     border: 0;
     width: 100%;
+    background-color: transparent;
 }
 
-.swap-link {
-    margin-left: .5em;
+details {
+    margin-top: 1rem;
+}
+
+details summary {
+    cursor: pointer;
+    padding: 0.5rem;
+    background-color: var(--bg-tertiary);
+    border-radius: 0.375rem;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
+}
+
+details summary:hover {
+    background-color: var(--bg-primary);
+}
+
+details img {
+    margin-top: 0.75rem;
+    border-radius: 0.5rem;
+}
+
+aside {
+    margin-top: 2rem;
+}
+
+aside nav {
+    background-color: var(--bg-secondary);
+    padding: 1.5rem;
+    border-radius: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+aside ul {
+    line-height: 1.8;
+}
+
+aside ul li {
+    margin-bottom: 0.5rem;
+}
+
+.page-actions label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+}
+
+input[type="checkbox"] {
+    width: 1.1rem;
+    height: 1.1rem;
+    cursor: pointer;
+}
+
+@media (max-width: 640px) {
+    body {
+        padding: 0.75rem;
+    }
+    
+    section {
+        padding: 1rem;
+    }
+    
+    .route-picker {
+        width: 100%;
+    }
+    
+    .route-picker label,
+    .route-picker select {
+        flex: 1;
+        min-width: 0;
+    }
 }
 `}
         </style>
