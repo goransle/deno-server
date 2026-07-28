@@ -2,7 +2,8 @@
   "version": "5",
   "redirects": {
     "https://deno.land/x/dotenv/mod.ts": "https://deno.land/x/dotenv@v3.2.2/mod.ts",
-    "https://esm.sh/preact": "https://esm.sh/preact@10.13.2"
+    "https://esm.sh/preact": "https://esm.sh/preact@10.13.2",
+    "https://esm.sh/preact@%3E=10?target=denonext": "https://esm.sh/preact@10.29.7?target=denonext"
   },
   "remote": {
     "https://cdn.skypack.dev/-/preact-render-to-string@v6.0.3-fRQ9HpDzsZPAkgKTz4NK/dist=es2019,mode=imports/optimized/preact-render-to-string.js": "08bc3a9cf521f121c52c1dc93315849d19d9b1d46724bedb7a579b5736a8ec81",
@@ -477,10 +478,13 @@
     "https://deno.land/x/esbuild_deno_loader@0.7.0/src/shared.ts": "7233a824b8357836bfa62975f78ab602442a0d880411c32ead8859035abd9d63",
     "https://deno.land/x/importmap@0.2.1/_util.ts": "ada9a9618b537e6c0316c048a898352396c882b9f2de38aba18fd3f2950ede89",
     "https://deno.land/x/importmap@0.2.1/mod.ts": "ae3d1cd7eabd18c01a4960d57db471126b020f23b37ef14e1359bbb949227ade",
-    "https://esm.sh/preact-render-to-string@6.5.12": "d48240275dca3ca5c7aae6e647517ad0e9a9ccf5202b5594d1ae160888d91944",
+    "https://esm.sh/preact-render-to-string@6.5.12": "11291abf2ae480a2fdd4aa071b0bea4808264ae798f9601fb52132c67c3b2ff2",
+    "https://esm.sh/preact-render-to-string@6.5.12/denonext/preact-render-to-string.mjs": "2488f410238543bf8da33e1a06ec1118fb6e6f7c61eba9533ee810127f5377a1",
     "https://esm.sh/preact-render-to-string@v6.0.3": "8c4eb785a4121b8d1aec05150fae34c286a2e8e6f54d3fefff385d85e4371ea7",
     "https://esm.sh/preact@10.13.2": "5ebf0838bbc3c32fc6e78a4cd9dd672f2c36386d0595815d721a6b0941278488",
     "https://esm.sh/preact@10.25.3": "5a6dd0f7a583bc1081166279d6bf678238b84eab862b34f1da460d65b27c7bb0",
+    "https://esm.sh/preact@10.29.7/denonext/preact.mjs": "b34f0e592f1975bd90e29d680c2efcfdfc67d2138d49231c424d8c8a676ab895",
+    "https://esm.sh/preact@10.29.7?target=denonext": "abf0b5cdfb728a6478766261cbbeeb09b2e6b02b385815b123a597826d6e005d",
     "https://esm.sh/rollup@2.61.1": "da209f5ebdd9892cfc59bf1af2239b8b654b8c61c48491dbc0a269a0ba3458da",
     "https://esm.sh/rollup@3.21.6": "705ce70c655547c8138cbb86aa4139503f1806acc6391b1faf52893aff9363e9",
     "https://esm.sh/stable/preact@10.13.2/deno/preact.mjs": "365fab897381f4f403f859c5d12939084560545567108cc90dae901bbe892578",
