@@ -1,7 +1,8 @@
 {
   "tasks": {
-    "predev": "deno run -A bundle.ts",
-    "dev": "deno task predev && deno run -A --watch main.ts"
+    "build": "deno run -A bundle.ts",
+    "dev": "deno task build && deno run -A --unstable-cron --watch main.ts",
+    "deploy": "deno task build && deno deploy"
   },
   "compilerOptions": {
     "jsx": "react",

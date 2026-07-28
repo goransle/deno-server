@@ -1,4 +1,3 @@
-import { serve } from "https://deno.land/std@0.213.0/http/server.ts";
 import {
   fromFileUrl,
   isAbsolute,
@@ -490,7 +489,7 @@ for (const scriptObj of scripts) {
   });
 }
 
-serve(async (req: Request) => {
+Deno.serve(async (req: Request) => {
   const response = await getRoute(req);
 
   const allowedOrigin = getAllowedCorsOrigin(req.headers.get("origin"));
