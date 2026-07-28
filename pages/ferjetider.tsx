@@ -12,10 +12,10 @@ export type FerjetiderProps = {
 };
 
 const cams: Record<string, string> = {
-  vangsnes: "https://webkamera.atlas.vegvesen.no/public/kamera?id=1429036_1",
-  hella: "https://webkamera.atlas.vegvesen.no/public/kamera?id=1429039_1",
-  dragsvik: "https://webkamera.atlas.vegvesen.no/public/kamera?id=1429040_1",
-  mannheller: "https://webkamera.atlas.vegvesen.no/public/kamera?id=1429028_1",
+  vangsnes: "https://kamera.atlas.vegvesen.no/api/images/1429036_1",
+  hella: "https://kamera.atlas.vegvesen.no/api/images/1429039_1",
+  dragsvik: "https://kamera.atlas.vegvesen.no/api/images/1429040_1",
+  mannheller: "https://kamera.atlas.vegvesen.no/api/images/1429028_1",
 };
 
 export function getPlaceName(place: string): string | null {

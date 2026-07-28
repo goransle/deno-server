@@ -34,6 +34,20 @@ const statusMessagesDirectoryUrl = new URL(
 );
 const statusMessagesDirectoryPath = fromFileUrl(statusMessagesDirectoryUrl);
 const statusMessagesRoutePrefix = "/status-messages/";
+const statusMessagesDocumentHead = '<head><meta charset="UTF-8" /></head>';
+
+function ensureStandardsModeStatusHtml(fileContent: string): string {
+  const trimmedFileContent = fileContent.trimStart();
+  if (/^<!doctype html>/i.test(trimmedFileContent)) {
+    return fileContent;
+  }
+
+  if (/^<html[\s>]/i.test(trimmedFileContent)) {
+    return `<!DOCTYPE html>${fileContent}`;
+  }
+
+  return `<!DOCTYPE html><html lang=\"en\">${statusMessagesDocumentHead}<body>${fileContent}</body></html>`;
+}
 
 function decodePathnameSafely(pathname: string): string | null {
   let decodedPathname = pathname;
@@ -417,10 +431,10 @@ addRoute(
 
     try {
       const file = await Deno.readTextFile(resolvedFilePath);
-      return htmlResponse(file);
+      return htmlResponse(ensureStandardsModeStatusHtml(file));
     } catch (error) {
       if (error instanceof Deno.errors.NotFound) {
-        return htmlResponse("");
+        return htmlResponse(ensureStandardsModeStatusHtml(""));
       }
 
       return new Response(null, { status: 500 });
