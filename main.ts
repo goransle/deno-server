@@ -33,11 +33,15 @@ const statusMessagesDirectoryUrl = new URL(
 );
 const statusMessagesDirectoryPath = fromFileUrl(statusMessagesDirectoryUrl);
 const statusMessagesRoutePrefix = "/status-messages/";
-const statusMessagesDocumentHead = '<head><meta charset="UTF-8" /></head>';
+const statusMessagesDocumentHead = '<head><meta charset="UTF-8" /><style>html,body{background:transparent;color-scheme:dark;}</style></head>';
 
 function ensureStandardsModeStatusHtml(fileContent: string): string {
   const trimmedFileContent = fileContent.trimStart();
   if (/^<!doctype html>/i.test(trimmedFileContent)) {
+    if (/<head>/i.test(trimmedFileContent)) {
+      return fileContent.replace(/<head>/i, `<head><style>html,body{background:transparent;color-scheme:dark;}</style>`);
+    }
+
     return fileContent;
   }
 

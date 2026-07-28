@@ -110,7 +110,23 @@
       setAutoLocateDisabled(!toggle.checked);
     });
   }
+  function revealStatusMessages() {
+    const frames = document.querySelectorAll(".status-frame");
+    for (const frame of frames) {
+      if (!(frame instanceof HTMLIFrameElement)) {
+        continue;
+      }
+      frame.addEventListener("load", () => {
+        const documentText = frame.contentDocument?.documentElement?.textContent?.trim();
+        const wrapper = frame.closest(".status-message");
+        if (documentText && wrapper instanceof HTMLElement) {
+          wrapper.hidden = false;
+        }
+      });
+    }
+  }
   setupNearestRouteButton();
   setupAutoLocateToggle();
+  revealStatusMessages();
   maybeAutoRedirectToNearest();
 })();

@@ -214,16 +214,167 @@ export async function Ferjetider(props: FerjetiderProps) {
 
         <style>
           {`
-body {
-    font-family: sans-serif;
-    font-size: 1.4rem;
+:root {
+    color-scheme: dark;
+    --night: #061018;
+    --deep-water: #0a2233;
+    --panel: rgba(10, 34, 51, .84);
+    --panel-strong: #102f45;
+    --line: rgba(125, 231, 232, .28);
+    --text: #e6f7f4;
+    --muted: #9fc2c0;
+    --signal: #7de7e8;
+    --signal-strong: #a9f5ef;
+    --warning: #ffd166;
 }
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: "Avenir Next", Futura, "Trebuchet MS", sans-serif;
+    font-size: 1.4rem;
+    line-height: 1.5;
+    color: var(--text);
+    background:
+        radial-gradient(circle at 12% -10%, rgba(125, 231, 232, .22), transparent 34rem),
+        radial-gradient(circle at 88% 8%, rgba(255, 209, 102, .11), transparent 26rem),
+        linear-gradient(150deg, var(--night) 0%, #071a27 48%, #02080d 100%);
+    min-height: 100vh;
+    padding: clamp(1rem, 4vw, 3rem) 1rem;
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background:
+        linear-gradient(115deg, transparent 0 48%, rgba(125, 231, 232, .055) 48% 50%, transparent 50%),
+        repeating-linear-gradient(165deg, rgba(255, 255, 255, .025) 0 1px, transparent 1px 14px);
+    opacity: .75;
+}
+
+body > * {
+    position: relative;
+}
+
+main,
+body > aside,
+.status-message {
+    width: min(100%, 30em);
+    margin-inline: auto;
+}
+
 main {
-    margin: 0 auto;
-    max-width: 30em;
     display: flex;
     flex-direction: column;
     gap: 1em;
+    padding: clamp(1rem, 4vw, 1.75rem);
+    background: linear-gradient(145deg, rgba(10, 34, 51, .94), rgba(5, 20, 30, .9));
+    border: 1px solid var(--line);
+    border-radius: 1.4rem;
+    box-shadow: 0 1.5rem 5rem rgba(0, 0, 0, .45), inset 0 1px rgba(255, 255, 255, .08);
+}
+
+main > section,
+main section section,
+details,
+body > aside {
+    padding: .9rem;
+    background: rgba(6, 18, 27, .48);
+    border: 1px solid rgba(125, 231, 232, .16);
+    border-radius: 1rem;
+}
+
+h2,
+h3 {
+    margin: 0 0 .45em;
+    line-height: 1.1;
+    letter-spacing: -.03em;
+}
+
+h2 {
+    font-size: clamp(1.7rem, 9vw, 2.55rem);
+    text-wrap: balance;
+}
+
+.ferry-from {
+    color: var(--signal-strong);
+}
+
+.ferry-to {
+    color: var(--warning);
+}
+
+h3 {
+    font-size: 1em;
+}
+
+p,
+ol,
+ul {
+    margin-top: .5em;
+}
+
+ol {
+    font-size: clamp(1.8rem, 10vw, 3rem);
+    font-weight: 700;
+    letter-spacing: -.04em;
+    line-height: 1.25;
+}
+
+li::marker {
+    color: var(--signal);
+}
+
+a {
+    color: var(--signal-strong);
+    text-decoration-color: rgba(169, 245, 239, .42);
+    text-underline-offset: .18em;
+}
+
+a:hover,
+a:focus-visible {
+    color: var(--warning);
+}
+
+button,
+select,
+input {
+    font: inherit;
+}
+
+select,
+button {
+    min-height: 2.6rem;
+    color: var(--text);
+    background: rgba(125, 231, 232, .1);
+    border: 1px solid var(--line);
+    border-radius: .75rem;
+}
+
+select {
+    padding-inline: .65rem;
+}
+
+button {
+    padding-inline: .9rem;
+    cursor: pointer;
+}
+
+button:hover,
+button:focus-visible {
+    background: rgba(125, 231, 232, .2);
+    border-color: var(--signal);
+}
+
+input[type="checkbox"] {
+    width: 1.1em;
+    height: 1.1em;
+    accent-color: var(--signal);
 }
 
 .sr-only { 
@@ -238,15 +389,22 @@ main {
 }
 
 .notices {
-    font-size: .7em;
-    margin: auto .5em;
+    display: block;
+    color: var(--warning);
+    font-size: .35em;
+    font-weight: 600;
+    letter-spacing: 0;
+    margin: .25em 0 0;
 }
 
 .driftsmeldinger {
     font-size: .6em;
-    margin-top: .5em;
-    padding: .5em;
-    border-left: .2em solid currentColor;
+    margin-top: .8em;
+    padding: .75em .9em;
+    color: #ffe7a3;
+    background: rgba(255, 209, 102, .08);
+    border-left: .2em solid var(--warning);
+    border-radius: .6rem;
 }
 
 .driftsmeldinger ul {
@@ -264,9 +422,11 @@ main {
     color: inherit;
 }
 
-#action-links, .page-actions {
+#action-links,
+.page-actions {
     display: flex;
     flex-wrap: wrap;
+    align-items: end;
     gap: .7em;
 }
 
@@ -276,10 +436,24 @@ main {
     flex-wrap: wrap;
 }
 
-.route-picker label {
+.route-picker label,
+.page-actions > label {
     display: inline-flex;
-    flex-direction: column;
+    color: var(--muted);
     font-size: .7em;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.route-picker label {
+    flex-direction: column;
+}
+
+.page-actions > label {
+    align-items: center;
+    gap: .45em;
+    text-transform: none;
 }
 
 .route-picker select,
@@ -291,22 +465,59 @@ main {
 }
 
 .status-message {
+    padding: .45rem;
+    color: var(--muted);
+    background: rgba(10, 34, 51, .72);
+    border: 1px solid rgba(125, 231, 232, .16);
+    border-radius: .9rem;
     font-size: .7em;
 }
 
+.status-message[hidden] {
+    display: none;
+}
+
 .status-frame {
-    border: 0;
+    display: block;
     width: 100%;
+    height: 4.5rem;
+    border: 0;
+    color-scheme: dark;
+    background: transparent;
 }
 
 .swap-link {
     margin-left: .5em;
 }
+
+details {
+    margin-top: .8em;
+}
+
+summary {
+    cursor: pointer;
+    color: var(--muted);
+}
+
+img {
+    border-radius: .8rem;
+}
+
+body > aside {
+    margin-top: 1rem;
+    color: var(--muted);
+    font-size: .78em;
+}
+
+body > aside nav ul,
+body > aside > ul {
+    padding-left: 1.2em;
+}
 `}
         </style>
       </head>
       <body>
-        <section className="status-message">
+        <section className="status-message" hidden>
           <iframe
             className="status-frame"
             src="/status-messages/index.html"
@@ -314,7 +525,7 @@ main {
             sandbox=""
           />
         </section>
-        <section className="status-message">
+        <section className="status-message" hidden>
           <iframe
             className="status-frame"
             src={`/status-messages/${ferryData.from}-${ferryData.to}.html`}
