@@ -158,7 +158,50 @@ function revealStatusMessages() {
   }
 }
 
+function formatCountdown(msRemaining: number) {
+  const minutes = Math.round(msRemaining / 60000);
+
+  if (minutes < 1) {
+    return "departing now";
+  }
+
+  if (minutes < 60) {
+    return `in ${minutes} min`;
+  }
+
+  const hours = Math.floor(minutes / 60);
+  const rest = minutes % 60;
+  return rest ? `in ${hours} h ${rest} min` : `in ${hours} h`;
+}
+
+function updateCountdowns() {
+  const now = Date.now();
+
+  for (const element of document.querySelectorAll("[data-start-time]")) {
+    if (!(element instanceof HTMLElement)) {
+      continue;
+    }
+
+    const startTime = Date.parse(element.dataset.startTime ?? "");
+    if (Number.isNaN(startTime)) {
+      continue;
+    }
+
+    element.textContent = formatCountdown(startTime - now);
+  }
+}
+
+function setupCountdowns() {
+  if (!document.querySelector("[data-start-time]")) {
+    return;
+  }
+
+  updateCountdowns();
+  setInterval(updateCountdowns, 20000);
+}
+
 setupNearestRouteButton();
 setupAutoLocateToggle();
 revealStatusMessages();
+setupCountdowns();
 maybeAutoRedirectToNearest();

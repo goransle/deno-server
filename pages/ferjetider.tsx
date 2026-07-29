@@ -29,8 +29,24 @@ export function getPlaceName(place: string): string | null {
 export function formatTimestamp(timestamp: string) {
   return (new Date(timestamp)).toLocaleTimeString(
     "no-NO",
-    { timeZone: "Europe/Oslo" },
-  ).replace(":00", "");
+    { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Oslo" },
+  );
+}
+
+export function formatCountdown(startTime: string, now = Date.now()) {
+  const minutes = Math.round((new Date(startTime).getTime() - now) / 60000);
+
+  if (minutes < 1) {
+    return "departing now";
+  }
+
+  if (minutes < 60) {
+    return `in ${minutes} min`;
+  }
+
+  const hours = Math.floor(minutes / 60);
+  const rest = minutes % 60;
+  return rest ? `in ${hours} h ${rest} min` : `in ${hours} h`;
 }
 
 type FerryTrip = {
@@ -95,6 +111,12 @@ function resolveRoute(
 }
 
 export function FerrySection(props: FerrySectionProps) {
+  const now = Date.now();
+  const nextIndex = (props.ferries ?? []).findIndex(
+    (ferry) => new Date(ferry.startTime).getTime() > now,
+  );
+  const nextFerry = nextIndex >= 0 ? props.ferries[nextIndex] : null;
+
   return (
     <section>
       <h2>
@@ -117,16 +139,40 @@ export function FerrySection(props: FerrySectionProps) {
           Swap
         </a>
       </h2>
-      <p className="info" />
-      <ol style={{ listStyle: "square" }}>
+      {nextFerry
+        ? (
+          <p className="info">
+            Next departure{" "}
+            <strong>{formatTimestamp(nextFerry.startTime)}</strong>{" "}
+            <span
+              className="countdown"
+              data-start-time={nextFerry.startTime}
+            >
+              {formatCountdown(nextFerry.startTime)}
+            </span>
+          </p>
+        )
+        : (
+          <p className="info">No upcoming departures found</p>
+        )}
+      <ol>
         {(props.ferries ?? []).map(({ startTime, notices }, index) => {
           const noticeText = (notices ?? [])
             .map((notice) => notice.text?.trim())
             .filter(Boolean)
             .join(" · ");
 
+          const state = index === nextIndex
+            ? "next"
+            : new Date(startTime).getTime() <= now
+            ? "past"
+            : null;
+
           return (
-            <li key={`${startTime}-${noticeText || index}`}>
+            <li
+              key={`${startTime}-${noticeText || index}`}
+              className={state ?? undefined}
+            >
               {formatTimestamp(startTime)}
               {noticeText && (
                 <span className="notices">
@@ -215,7 +261,7 @@ export async function Ferjetider(props: FerjetiderProps) {
         <style>
           {`
 :root {
-    color-scheme: dark;
+    color-scheme: light dark;
     --night: #061018;
     --deep-water: #0a2233;
     --panel: rgba(10, 34, 51, .84);
@@ -320,6 +366,7 @@ ul {
 }
 
 ol {
+    list-style: square;
     font-size: clamp(1.8rem, 10vw, 3rem);
     font-weight: 700;
     letter-spacing: -.04em;
@@ -328,6 +375,32 @@ ol {
 
 li::marker {
     color: var(--signal);
+}
+
+li.past {
+    color: var(--muted);
+    font-weight: 400;
+    opacity: .55;
+}
+
+li.next {
+    color: var(--signal-strong);
+    text-shadow: 0 0 1.4rem rgba(125, 231, 232, .4);
+}
+
+.info {
+    margin: 0 0 .25em;
+    color: var(--muted);
+    font-size: .75em;
+}
+
+.info strong {
+    color: var(--text);
+}
+
+.countdown {
+    color: var(--signal);
+    font-weight: 700;
 }
 
 a {
@@ -512,6 +585,66 @@ body > aside {
 body > aside nav ul,
 body > aside > ul {
     padding-left: 1.2em;
+}
+
+@media (prefers-color-scheme: light) {
+    :root {
+        color-scheme: light;
+        --night: #eef6f6;
+        --line: rgba(9, 92, 100, .3);
+        --text: #0c2e35;
+        --muted: #52727a;
+        --signal: #07888f;
+        --signal-strong: #065e64;
+        --warning: #9a5b00;
+    }
+
+    body {
+        background:
+            radial-gradient(circle at 12% -10%, rgba(7, 136, 143, .16), transparent 34rem),
+            radial-gradient(circle at 88% 8%, rgba(255, 209, 102, .3), transparent 26rem),
+            linear-gradient(150deg, #f2f9f9 0%, #e2eff2 48%, #d4e6ea 100%);
+    }
+
+    body::before {
+        opacity: .45;
+    }
+
+    main {
+        background: linear-gradient(145deg, rgba(255, 255, 255, .94), rgba(240, 248, 249, .92));
+        box-shadow: 0 1.5rem 4rem rgba(12, 46, 53, .18), inset 0 1px rgba(255, 255, 255, .8);
+    }
+
+    main > section,
+    main section section,
+    details,
+    body > aside {
+        background: rgba(255, 255, 255, .55);
+        border-color: rgba(9, 92, 100, .18);
+    }
+
+    select,
+    button {
+        background: rgba(7, 136, 143, .08);
+    }
+
+    .status-message {
+        background: rgba(255, 255, 255, .75);
+        border-color: rgba(9, 92, 100, .18);
+    }
+
+    .driftsmeldinger {
+        color: #7a4a00;
+        background: rgba(255, 209, 102, .22);
+    }
+
+    li.next {
+        text-shadow: none;
+    }
+
+    a {
+        text-decoration-color: rgba(6, 94, 100, .4);
+    }
 }
 `}
         </style>

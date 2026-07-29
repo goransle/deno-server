@@ -182,13 +182,11 @@ export const ferryLines: FerryLine[] = [
   ["fodnes", "mannheller"],
 ];
 
-const today = new Date();
-
 const ferryRequestJSON = (from: string, to: string) => {
   return {
     "from": places[from],
     "to": places[to],
-    "searchDate": today.toISOString(), //(new Date()).setDate(today.getDate() + 1),
+    "searchDate": (new Date()).toISOString(),
     "tripMode": "oneway",
     "arriveBy": false,
     "searchPreset": "RECOMMENDED",
