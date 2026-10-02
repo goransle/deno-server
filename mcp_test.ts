@@ -8,7 +8,7 @@ import {
 
 Deno.env.set("MCP_AUTH_TOKEN", "test-token-123");
 Deno.env.set("INTERVALS_API_KEY", "test-icu-key");
-Deno.env.set("INTERVALS_ATHELETE_ID", "12345");
+Deno.env.set("INTERVALS_ATHLETE_ID", "12345");
 
 addRoute("POST", "/mcp", (req) => {
   if (!isAuthorizedMcpRequest(req)) {
