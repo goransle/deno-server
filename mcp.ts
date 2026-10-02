@@ -204,6 +204,9 @@ const tools: ToolDefinition[] = [
       if (!id) {
         throw new Error('Parameter "id" is required');
       }
+      if (!/^\d+$/.test(id)) {
+        throw new Error('Parameter "id" must be a numeric activity id');
+      }
       return intervalsFetch(`/activity/${id}`);
     },
   },
