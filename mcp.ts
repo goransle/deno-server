@@ -320,6 +320,18 @@ async function handleRequest(request: JsonRpcRequest): Promise<JsonRpcResponse |
   }
 }
 
+function timingSafeEqualString(a: string, b: string): boolean {
+  if (a.length !== b.length) {
+    return false;
+  }
+
+  let mismatch = 0;
+  for (let i = 0; i < a.length; i++) {
+    mismatch |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  }
+  return mismatch === 0;
+}
+
 export function isAuthorizedMcpRequest(req: Request): boolean {
   const authToken = Deno.env.get("MCP_AUTH_TOKEN");
   if (!authToken) {
@@ -336,7 +348,7 @@ export function isAuthorizedMcpRequest(req: Request): boolean {
     return false;
   }
 
-  return token === authToken;
+  return timingSafeEqualString(token, authToken);
 }
 
 export function mcpUnauthorizedResponse(): Response {
