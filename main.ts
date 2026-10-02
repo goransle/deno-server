@@ -7,6 +7,7 @@ import {
 import { config } from "https://deno.land/x/dotenv@v3.2.2/mod.ts";
 import { render } from "https://esm.sh/preact-render-to-string@6.5.12";
 import { addRoute, getRoute } from "./router.ts";
+import { handleMcpRequest, isAuthorizedMcpRequest, mcpUnauthorizedResponse } from "./mcp.ts";
 
 import scripts from "./scripts.json" with { type: "json" };
 
@@ -450,6 +451,14 @@ addRoute("GET", "/api/ferry-config", () => {
     ferryLines,
     places,
   });
+});
+
+addRoute("POST", "/mcp", (req) => {
+  if (!isAuthorizedMcpRequest(req)) {
+    return mcpUnauthorizedResponse();
+  }
+
+  return handleMcpRequest(req);
 });
 
 addRoute("GET", "/demo", async () => {
