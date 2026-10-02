@@ -188,7 +188,49 @@ function mcpRequest(body: unknown, authorized = true) {
   console.log("✓ batch request returns array of responses");
 }
 
-// 13. tools/call with upstream fetch (get_athlete) -> tool error with status
+// 13. get_activities without oldest defaults to a 30-day-old oldest param.
+// Intercept global fetch to capture the URL.
+{
+  const originalFetch = globalThis.fetch;
+  let capturedUrl: string | null = null;
+  const mockFetch = ((input: RequestInfo | URL) => {
+    capturedUrl = String(input);
+    return Promise.resolve(
+      new Response("[]", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+  }) as unknown as typeof fetch;
+  globalThis.fetch = mockFetch;
+
+  try {
+    const res = await getRoute(mcpRequest({
+      jsonrpc: "2.0",
+      id: 11,
+      method: "tools/call",
+      params: { name: "get_activities", arguments: {} },
+    }));
+    const data = await res.json();
+    assertEquals(data.result.isError, undefined);
+    if (capturedUrl === null) {
+      throw new Error("fetch was not called");
+    }
+    const url = new URL(capturedUrl);
+    const oldest = url.searchParams.get("oldest");
+    if (oldest === null) {
+      throw new Error("oldest param missing");
+    }
+    const expected = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+      .toISOString().slice(0, 10);
+    assertEquals(oldest, expected);
+    console.log(`✓ get_activities defaults oldest to ${oldest} when omitted`);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+}
+
+// 14. tools/call with upstream fetch (get_athlete) -> tool error with status
 // (upstream is unreachable/mocked key, so intervalsFetch throws and the
 // handler converts it to an isError result)
 {
@@ -211,4 +253,4 @@ function assertIncludes(haystack: string, needle: string) {
   }
 }
 
-console.log("\nAll 13 MCP endpoint tests passed");
+console.log("\nAll 14 MCP endpoint tests passed");

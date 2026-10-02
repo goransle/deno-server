@@ -64,10 +64,15 @@ function expectString(
   return value;
 }
 
+function defaultOldestDate(): string {
+  const date = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+  return date.toISOString().slice(0, 10);
+}
+
 function buildQuery(
   params: Record<string, unknown>,
   entries: { param: string; query: string }[],
-): string {
+): URLSearchParams {
   const searchParams = new URLSearchParams();
   for (const { param, query } of entries) {
     const value = expectString(params, param);
@@ -75,7 +80,7 @@ function buildQuery(
       searchParams.set(query, value);
     }
   }
-  return searchParams.toString();
+  return searchParams;
 }
 
 function athletePath(suffix: string): string {
@@ -88,7 +93,10 @@ function athletePath(suffix: string): string {
   return `/athlete/${athleteId}${suffix}`;
 }
 
-async function intervalsFetch(path: string, query = ""): Promise<unknown> {
+async function intervalsFetch(
+  path: string,
+  query: URLSearchParams = new URLSearchParams(),
+): Promise<unknown> {
   const credentials = getIntervalsCredentials();
   if (!credentials) {
     throw new Error(
@@ -97,7 +105,8 @@ async function intervalsFetch(path: string, query = ""): Promise<unknown> {
   }
 
   const authorization = `Basic ${btoa(`API_KEY:${credentials.apiKey}`)}`;
-  const url = `${INTERVALS_API_BASE}${path}${query ? `?${query}` : ""}`;
+  const queryString = query ? `?${query.toString()}` : "";
+  const url = `${INTERVALS_API_BASE}${path}${queryString}`;
   const response = await fetch(url, {
     headers: {
       "Authorization": authorization,
@@ -157,7 +166,7 @@ const tools: ToolDefinition[] = [
   {
     name: "get_activities",
     description:
-      "List activities for the configured athlete. Optionally filter by oldest/newest date (YYYY-MM-DD) and request specific fields",
+      "List activities for the configured athlete. Defaults to the last 30 days; optionally filter by oldest/newest date (YYYY-MM-DD) and request specific fields",
     inputSchema: {
       type: "object",
       properties: {
@@ -181,6 +190,9 @@ const tools: ToolDefinition[] = [
         { param: "newest", query: "newest" },
         { param: "fields", query: "fields" },
       ]);
+      if (!query.has("oldest")) {
+        query.set("oldest", defaultOldestDate());
+      }
       return intervalsFetch(athletePath("/activities"), query);
     },
   },
