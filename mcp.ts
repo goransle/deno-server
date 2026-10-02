@@ -388,7 +388,16 @@ export async function callTool(
 
 export async function handleMcpRequest(req: Request): Promise<Response> {
   if (req.method !== "POST") {
-    return new Response(null, { status: 405 });
+    return new Response(
+      "This is an MCP (Model Context Protocol) endpoint. It accepts POST requests with JSON-RPC 2.0 messages and requires an Authorization: Bearer header. See https://modelcontextprotocol.io for details.",
+      {
+        status: 405,
+        headers: {
+          "Content-Type": "text/plain; charset=UTF-8",
+          "Allow": "POST",
+        },
+      },
+    );
   }
 
   let body: unknown;
