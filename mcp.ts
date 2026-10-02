@@ -42,8 +42,8 @@ function jsonRpcError(
 }
 
 function getIntervalsCredentials(): { apiKey: string; athleteId: string } | null {
-  const apiKey = Deno.env.get("INTERVALS_ICU_API_KEY");
-  const athleteId = Deno.env.get("INTERVALS_ICU_ATHLETE_ID");
+  const apiKey = Deno.env.get("INTERVALS_API_KEY");
+  const athleteId = Deno.env.get("INTERVALS_ATHELETE_ID");
   if (!apiKey || !athleteId) {
     return null;
   }
@@ -79,10 +79,10 @@ function buildQuery(
 }
 
 function athletePath(suffix: string): string {
-  const athleteId = Deno.env.get("INTERVALS_ICU_ATHLETE_ID");
+  const athleteId = Deno.env.get("INTERVALS_ATHELETE_ID");
   if (!athleteId) {
     throw new Error(
-      "Missing INTERVALS_ICU_API_KEY or INTERVALS_ICU_ATHLETE_ID environment variable",
+      "Missing INTERVALS_API_KEY or INTERVALS_ATHELETE_ID environment variable",
     );
   }
   return `/athlete/${athleteId}${suffix}`;
@@ -92,7 +92,7 @@ async function intervalsFetch(path: string, query = ""): Promise<unknown> {
   const credentials = getIntervalsCredentials();
   if (!credentials) {
     throw new Error(
-      "Missing INTERVALS_ICU_API_KEY or INTERVALS_ICU_ATHLETE_ID environment variable",
+      "Missing INTERVALS_API_KEY or INTERVALS_ATHELETE_ID environment variable",
     );
   }
 
