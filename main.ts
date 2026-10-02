@@ -469,7 +469,7 @@ addRoute("POST", "/mcp", (req) => {
 import { LatestActivity } from "./pages/latest-activity.tsx";
 
 type IntervalActivity = {
-  id?: string | number;
+  id?: string;
   name?: string;
   type?: string;
   startTime?: string;
@@ -509,7 +509,9 @@ addRoute("GET", "/latest-activity", async () => {
     }
   }
 
-  const page = `<!DOCTYPE html>${render(<LatestActivity activity={activity} error={error} />)}`;
+  const page = `<!DOCTYPE html>${
+    render(LatestActivity({ activity, error }))
+  }`;
   return htmlResponse(page);
 });
 

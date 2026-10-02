@@ -2,7 +2,7 @@ import { h } from "https://esm.sh/preact@10.25.3";
 
 export type LatestActivityProps = {
   activity?: {
-    id: string;
+    id?: string;
     name?: string;
     type?: string;
     startTime?: string;
@@ -91,12 +91,16 @@ export function LatestActivity({ activity, error }: LatestActivityProps) {
                 : null}
             </dl>
             <p style="margin: 1.25rem 0 0; font-size: 0.85rem;">
-              <a
-                href={`https://intervals.icu/activities/${activity.id}`}
-                style="color: #6db1f2;"
-              >
-                View on intervals.icu
-              </a>
+              {activity.id
+                ? (
+                  <a
+                    href={`https://intervals.icu/activities/${activity.id}`}
+                    style="color: #6db1f2;"
+                  >
+                    View on intervals.icu
+                  </a>
+                )
+                : null}
             </p>
           </section>
         )
