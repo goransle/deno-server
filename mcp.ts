@@ -27,7 +27,6 @@ const PARSE_ERROR = -32700;
 const INVALID_REQUEST = -32600;
 const METHOD_NOT_FOUND = -32601;
 const INVALID_PARAMS = -32602;
-const INTERNAL_ERROR = -32603;
 
 function jsonRpcResult(id: JsonRpcId, result: unknown): JsonRpcResponse {
   return { jsonrpc: "2.0", id, result };
@@ -278,7 +277,7 @@ async function handleToolsCall(
     return jsonRpcError(id, INVALID_PARAMS, `Unknown tool: ${toolName}`);
   }
 
-  const toolParams = params?.arguments;
+  const toolParams = params?.arguments as Record<string, unknown> | undefined;
   if (toolParams !== undefined && typeof toolParams !== "object") {
     return jsonRpcError(id, INVALID_PARAMS, 'Parameter "arguments" must be an object');
   }
