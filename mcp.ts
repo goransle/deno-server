@@ -41,13 +41,12 @@ function jsonRpcError(
   return { jsonrpc: "2.0", id, error: { code, message, data } };
 }
 
-function getIntervalsCredentials(): { apiKey: string; athleteId: string } | null {
+function getIntervalsApiKey(): string | null {
   const apiKey = Deno.env.get("INTERVALS_API_KEY");
-  const athleteId = Deno.env.get("INTERVALS_ATHLETE_ID");
-  if (!apiKey || !athleteId) {
+  if (!apiKey) {
     return null;
   }
-  return { apiKey, athleteId };
+  return apiKey;
 }
 
 function expectString(
@@ -83,28 +82,16 @@ function buildQuery(
   return searchParams;
 }
 
-function athletePath(suffix: string): string {
-  const athleteId = Deno.env.get("INTERVALS_ATHLETE_ID");
-  if (!athleteId) {
-    throw new Error(
-      "Missing INTERVALS_API_KEY or INTERVALS_ATHLETE_ID environment variable",
-    );
-  }
-  return `/athlete/${athleteId}${suffix}`;
-}
-
 async function intervalsFetch(
   path: string,
   query: URLSearchParams = new URLSearchParams(),
 ): Promise<unknown> {
-  const credentials = getIntervalsCredentials();
-  if (!credentials) {
-    throw new Error(
-      "Missing INTERVALS_API_KEY or INTERVALS_ATHLETE_ID environment variable",
-    );
+  const apiKey = getIntervalsApiKey();
+  if (!apiKey) {
+    throw new Error("Missing INTERVALS_API_KEY environment variable");
   }
 
-  const authorization = `Basic ${btoa(`API_KEY:${credentials.apiKey}`)}`;
+  const authorization = `Basic ${btoa(`API_KEY:${apiKey}`)}`;
   const queryString = query ? `?${query.toString()}` : "";
   const url = `${INTERVALS_API_BASE}${path}${queryString}`;
   const response = await fetch(url, {
@@ -161,7 +148,7 @@ const tools: ToolDefinition[] = [
     description:
       "Fetch the intervals.icu athlete profile for the configured athlete",
     inputSchema: { type: "object", properties: {} },
-    handler: () => intervalsFetch(athletePath("")),
+    handler: () => intervalsFetch("/athlete/me"),
   },
   {
     name: "get_activities",
@@ -193,7 +180,7 @@ const tools: ToolDefinition[] = [
       if (!query.has("oldest")) {
         query.set("oldest", defaultOldestDate());
       }
-      return intervalsFetch(athletePath("/activities"), query);
+      return intervalsFetch("/athlete/me/activities", query);
     },
   },
   {
@@ -243,7 +230,7 @@ const tools: ToolDefinition[] = [
         { param: "oldest", query: "oldest" },
         { param: "newest", query: "newest" },
       ]);
-      return intervalsFetch(athletePath("/wellness"), query);
+      return intervalsFetch("/athlete/me/wellness", query);
     },
   },
 ];

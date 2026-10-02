@@ -8,7 +8,6 @@ import {
 
 Deno.env.set("MCP_AUTH_TOKEN", "test-token-123");
 Deno.env.set("INTERVALS_API_KEY", "test-icu-key");
-Deno.env.set("INTERVALS_ATHLETE_ID", "12345");
 
 addRoute("POST", "/mcp", (req) => {
   if (!isAuthorizedMcpRequest(req)) {
@@ -217,6 +216,9 @@ function mcpRequest(body: unknown, authorized = true) {
       throw new Error("fetch was not called");
     }
     const url = new URL(capturedUrl);
+    if (url.pathname !== "/api/v1/athlete/me/activities") {
+      throw new Error(`unexpected path: ${url.pathname}`);
+    }
     const oldest = url.searchParams.get("oldest");
     if (oldest === null) {
       throw new Error("oldest param missing");
