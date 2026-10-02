@@ -368,6 +368,25 @@ export function mcpUnauthorizedResponse(): Response {
   );
 }
 
+export async function callTool(
+  name: string,
+  args: Record<string, unknown> = {},
+): Promise<{ ok: true; payload: unknown } | { ok: false; message: string }> {
+  const tool = findTool(name);
+  if (!tool) {
+    throw new Error(`Unknown tool: ${name}`);
+  }
+
+  try {
+    return { ok: true, payload: await tool.handler(args) };
+  } catch (error) {
+    return {
+      ok: false,
+      message: error instanceof Error ? error.message : String(error),
+    };
+  }
+}
+
 export async function handleMcpRequest(req: Request): Promise<Response> {
   if (req.method !== "POST") {
     return new Response(null, { status: 405 });

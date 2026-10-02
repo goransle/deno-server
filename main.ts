@@ -7,7 +7,12 @@ import {
 import { config } from "https://deno.land/x/dotenv@v3.2.2/mod.ts";
 import { render } from "https://esm.sh/preact-render-to-string@6.5.12";
 import { addRoute, getRoute } from "./router.ts";
-import { handleMcpRequest, isAuthorizedMcpRequest, mcpUnauthorizedResponse } from "./mcp.ts";
+import {
+  callTool,
+  handleMcpRequest,
+  isAuthorizedMcpRequest,
+  mcpUnauthorizedResponse,
+} from "./mcp.ts";
 
 import scripts from "./scripts.json" with { type: "json" };
 
@@ -459,6 +464,53 @@ addRoute("POST", "/mcp", (req) => {
   }
 
   return handleMcpRequest(req);
+});
+
+import { LatestActivity } from "./pages/latest-activity.tsx";
+
+type IntervalActivity = {
+  id?: string | number;
+  name?: string;
+  type?: string;
+  startTime?: string;
+  distance?: number;
+  movingTime?: number;
+  elapsedTime?: number;
+  totalElevationGain?: number;
+};
+
+addRoute("GET", "/latest-activity", async () => {
+  const result = await callTool("get_activities", {});
+
+  let activity: IntervalActivity | undefined;
+  let error: string | undefined;
+
+  if (!result.ok) {
+    error = result.message;
+  } else {
+    const activities = Array.isArray(result.payload)
+      ? result.payload as IntervalActivity[]
+      : undefined;
+    if (!activities || activities.length === 0) {
+      error = "No activities found.";
+    } else {
+      const latest = activities.find((candidate) => candidate.startTime) ??
+        activities[0];
+      activity = {
+        id: latest.id !== undefined ? String(latest.id) : undefined,
+        name: latest.name,
+        type: latest.type,
+        startTime: latest.startTime,
+        distance: latest.distance,
+        movingTime: latest.movingTime,
+        elapsedTime: latest.elapsedTime,
+        totalElevationGain: latest.totalElevationGain,
+      };
+    }
+  }
+
+  const page = `<!DOCTYPE html>${render(<LatestActivity activity={activity} error={error} />)}`;
+  return htmlResponse(page);
 });
 
 addRoute("GET", "/demo", async () => {
