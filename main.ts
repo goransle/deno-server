@@ -269,6 +269,15 @@ async function renderFerjetiderPage(
 ) {
   const url = new URL(req.url);
   const coordinates = parseCoordinates(url);
+
+  if (route && (route.from || route.to)) {
+    if (
+      !route.from || !route.to || !places[route.from] || !places[route.to]
+    ) {
+      return new Response("Unknown ferry route", { status: 404 });
+    }
+  }
+
   const resolvedRoute = resolveRoute(route?.from, route?.to);
 
   const page = `<!DOCTYPE html>${

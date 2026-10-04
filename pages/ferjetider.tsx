@@ -154,7 +154,11 @@ export function FerrySection(props: FerrySectionProps) {
             Next departure{" "}
             {isAdjustedTime(nextFerry.startTime, nextFerry.scheduledTime)
               ? (
-                <s>{formatTimestamp(nextFerry.scheduledTime!)}</s>
+                <s
+                  aria-label={`Scheduled ${formatTimestamp(nextFerry.scheduledTime!)},`}
+                >
+                  {formatTimestamp(nextFerry.scheduledTime!)}
+                </s>
               )
               : null}{" "}
             <strong>{formatTimestamp(nextFerry.startTime)}</strong>{" "}
@@ -189,8 +193,11 @@ export function FerrySection(props: FerrySectionProps) {
             >
               {isAdjustedTime(startTime, scheduledTime)
                 ? (
-                  <span className="scheduled-time">
-                    <s>{formatTimestamp(scheduledTime ?? "")}</s>
+                  <span
+                    className="scheduled-time"
+                    aria-label={`Scheduled ${formatTimestamp(scheduledTime ?? "")},`}
+                  >
+                    <s aria-hidden="true">{formatTimestamp(scheduledTime ?? "")}</s>{" "}
                   </span>
                 )
                 : null}
