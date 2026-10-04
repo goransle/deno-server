@@ -18,6 +18,7 @@ export type TransitResponse = {
   tripPatterns: {
     startTime: string;
     legs?: {
+      aimedStartTime?: string;
       serviceJourney?: {
         notices?: { text?: string }[];
       };
@@ -223,6 +224,7 @@ const cachedResponse: Record<string, CachedResponse> = {};
 export type FerryData = {
   ferries: {
     startTime: string;
+    scheduledTime?: string;
     notices: { text?: string }[];
   }[] | null;
   driftsmeldinger: Driftsmelding[];
@@ -309,8 +311,12 @@ export async function getNextFerries(config: getNextFerriesObject) {
         .flatMap((leg) => leg?.serviceJourney?.notices ?? [])
         .filter((notice): notice is { text?: string } => Boolean(notice));
 
+      const scheduledTime = (tp.legs ?? []).find((leg) => leg?.aimedStartTime)
+        ?.aimedStartTime;
+
       return {
         startTime: tp.startTime,
+        scheduledTime,
         notices,
       };
     });

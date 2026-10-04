@@ -51,6 +51,7 @@ export function formatCountdown(startTime: string, now = Date.now()) {
 
 type FerryTrip = {
   startTime: string;
+  scheduledTime?: string;
   notices: { text?: string }[];
 };
 
@@ -110,6 +111,14 @@ function resolveRoute(
   return { from, to };
 }
 
+function isAdjustedTime(startTime: string, scheduledTime?: string) {
+  if (!scheduledTime) {
+    return false;
+  }
+
+  return new Date(scheduledTime).getTime() !== new Date(startTime).getTime();
+}
+
 export function FerrySection(props: FerrySectionProps) {
   const now = Date.now();
   const nextIndex = (props.ferries ?? []).findIndex(
@@ -143,6 +152,11 @@ export function FerrySection(props: FerrySectionProps) {
         ? (
           <p className="info">
             Next departure{" "}
+            {isAdjustedTime(nextFerry.startTime, nextFerry.scheduledTime)
+              ? (
+                <s>{formatTimestamp(nextFerry.scheduledTime!)}</s>
+              )
+              : null}{" "}
             <strong>{formatTimestamp(nextFerry.startTime)}</strong>{" "}
             <span
               className="countdown"
@@ -156,7 +170,7 @@ export function FerrySection(props: FerrySectionProps) {
           <p className="info">No upcoming departures found</p>
         )}
       <ol>
-        {(props.ferries ?? []).map(({ startTime, notices }, index) => {
+        {(props.ferries ?? []).map(({ startTime, scheduledTime, notices }, index) => {
           const noticeText = (notices ?? [])
             .map((notice) => notice.text?.trim())
             .filter(Boolean)
@@ -173,6 +187,13 @@ export function FerrySection(props: FerrySectionProps) {
               key={`${startTime}-${noticeText || index}`}
               className={state ?? undefined}
             >
+              {isAdjustedTime(startTime, scheduledTime)
+                ? (
+                  <span className="scheduled-time">
+                    <s>{formatTimestamp(scheduledTime ?? "")}</s>
+                  </span>
+                )
+                : null}
               {formatTimestamp(startTime)}
               {noticeText && (
                 <span className="notices">
@@ -468,6 +489,11 @@ input[type="checkbox"] {
     font-weight: 600;
     letter-spacing: 0;
     margin: .25em 0 0;
+}
+
+.scheduled-time {
+    margin-right: .35em;
+    opacity: .7;
 }
 
 .driftsmeldinger {
