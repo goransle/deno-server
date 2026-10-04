@@ -1,1 +1,0 @@
-- [ ] Add directions using google maps http://maps.googleapis.com/maps/api/directions/json?origin=43.6533103,-79.3827675&destination=45.5085712,-73.5537674&sensor=false
