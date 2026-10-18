@@ -3,6 +3,7 @@ import { h } from "https://esm.sh/preact@10.25.3";
 import { fetchFerriesCached, places } from "../ferryFetcher.ts";
 import type { Driftsmelding } from "../ferryFetcher.ts";
 import { Ferjeliste } from "./ferjeliste.tsx";
+import { formatCountdown, hasCoordinates, resolveRoute } from "../utils/geo.ts";
 
 export type FerjetiderProps = {
   from?: string;
@@ -33,21 +34,7 @@ export function formatTimestamp(timestamp: string) {
   );
 }
 
-export function formatCountdown(startTime: string, now = Date.now()) {
-  const minutes = Math.round((new Date(startTime).getTime() - now) / 60000);
 
-  if (minutes < 1) {
-    return "departing now";
-  }
-
-  if (minutes < 60) {
-    return `in ${minutes} min`;
-  }
-
-  const hours = Math.floor(minutes / 60);
-  const rest = minutes % 60;
-  return rest ? `in ${hours} h ${rest} min` : `in ${hours} h`;
-}
 
 type FerryTrip = {
   startTime: string;
@@ -72,7 +59,7 @@ function getLink(from: string, to: string) {
 }
 
 function hasUserCoordinates(userLat?: number, userLon?: number) {
-  return Number.isFinite(userLat) && Number.isFinite(userLon);
+  return hasCoordinates(userLat, userLon);
 }
 
 function getRouteHref(
@@ -89,26 +76,6 @@ function getRouteHref(
   }
 
   return `${url.pathname}${url.search}`;
-}
-
-function resolveRoute(
-  from?: string,
-  to?: string,
-): { from: string; to: string } {
-  const fallback = {
-    from: "vangsnes",
-    to: "hella",
-  };
-
-  if (!from || !to) {
-    return fallback;
-  }
-
-  if (!places[from] || !places[to]) {
-    return fallback;
-  }
-
-  return { from, to };
 }
 
 function isAdjustedTime(startTime: string, scheduledTime?: string) {
