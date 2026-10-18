@@ -1,42 +1,61 @@
 import { h } from "https://esm.sh/preact@10.25.3";
 import { render } from "https://esm.sh/preact-render-to-string@6.5.12";
+import { assertStringIncludes } from "https://deno.land/std@0.213.0/testing/asserts.ts";
 import { LatestActivity } from "./pages/latest-activity.tsx";
 
-// Render with an activity
-const withActivity = render(
-  <LatestActivity
-    activity={{
-      id: "123456",
-      name: "Morning ride",
-      type: "Ride",
-      startTime: "2026-10-01T07:30:00.000",
-      distance: 42000,
-      movingTime: 5400,
-      elapsedTime: 5700,
-      totalElevationGain: 350,
-    }}
-  />,
-);
-if (!withActivity.includes("Morning ride")) throw new Error("missing name");
-if (!withActivity.includes("42.0 km")) throw new Error("missing distance");
-if (!withActivity.includes("1h 30m")) throw new Error("missing moving time");
-if (!withActivity.includes("intervals.icu/activities/123456")) {
-  throw new Error("missing link");
-}
-console.log("✓ renders activity with formatted stats and link");
+Deno.test("LatestActivity: renders activity with formatted stats and link", () => {
+  const html = render(
+    <LatestActivity
+      activity={{
+        id: "123456",
+        name: "Morning ride",
+        type: "Ride",
+        startTime: "2026-10-01T07:30:00.000",
+        distance: 42000,
+        movingTime: 5400,
+        elapsedTime: 5700,
+        totalElevationGain: 350,
+      }}
+    />,
+  );
+  assertStringIncludes(html, "Morning ride");
+  assertStringIncludes(html, "42.0 km");
+  assertStringIncludes(html, "1h 30m");
+  assertStringIncludes(html, "intervals.icu/activities/123456");
+});
 
-// Render with error
-const withError = render(
-  <LatestActivity error="Missing INTERVALS_ICU_API_KEY environment variable" />,
-);
-if (!withError.includes("Missing INTERVALS_ICU_API_KEY")) {
-  throw new Error("missing error message");
-}
-console.log("✓ renders error message");
+Deno.test("LatestActivity: renders error message", () => {
+  const html = render(
+    <LatestActivity error="Missing INTERVALS_ICU_API_KEY environment variable" />,
+  );
+  assertStringIncludes(html, "Missing INTERVALS_ICU_API_KEY");
+});
 
-// Render empty state
-const empty = render(<LatestActivity error="No activities found." />);
-if (!empty.includes("No activities found.")) throw new Error("missing empty state");
-console.log("✓ renders empty state");
+Deno.test("LatestActivity: renders empty state", () => {
+  const html = render(<LatestActivity error="No activities found." />);
+  assertStringIncludes(html, "No activities found.");
+});
 
-console.log("\nAll LatestActivity page tests passed");
+Deno.test("LatestActivity: renders activity with missing optional fields", () => {
+  const html = render(
+    <LatestActivity
+      activity={{
+        name: "Quick walk",
+      }}
+    />,
+  );
+  assertStringIncludes(html, "Quick walk");
+  assertStringIncludes(html, "Unnamed activity") === false;
+});
+
+Deno.test("LatestActivity: renders unnamed activity fallback", () => {
+  const html = render(
+    <LatestActivity
+      activity={{
+        id: "789",
+      }}
+    />,
+  );
+  assertStringIncludes(html, "Unnamed activity");
+  assertStringIncludes(html, "intervals.icu/activities/789");
+});
